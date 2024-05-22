@@ -41,7 +41,7 @@ contract HelloWorld {
 3. HelloWorld 계약에는 한개의 상태변수가 포함되어 있습니다.
 
 ```solidity
-stirng public greet = "Hello World!";
+string public greet = "Hello World!";
 ```   
 
 - string: 문자열 데이터 타입을 선언합니다.
