@@ -10,7 +10,6 @@ Solidity에서 State Variable(State 변수)는 Smart Contract의 상태를 저�
 
 
 ## 예제 코드
-Step-by-step instructions on how to install the project.
 ```bash
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24; 
