@@ -69,11 +69,11 @@ contract Array {
 3. 아래 버튼들이 제대로 동작하는지 확인합니다.
 
 - 초기화된 상태에서 getArr, getLength 버튼을 누르면 빈 array와 length가 0인 것을 확인할 수 있습니다. </br>
-<img src= "https://github.com/Joon2000/Solidity-modules/blob/90822fecd8422ffa4551a7fbe96e7dc2933fbe44/images/array/init.png" width="250px" height="400px" 
+<img src= "https://github.com/Joon2000/Solidity-modules/blob/80254c7fa686f0d682fa8a760028adf557e90fb8/images/array/init2.png" width="250px" height="400px" 
   title="init" alt="init"><br/>
 
 - 임의의 값을 추가하고, getArr, getLength 버튼을 누르면 array에 추가되었고, length가 1 증가한 것을 확인할 수 있습니다.
-<img src= "https://github.com/Joon2000/Solidity-modules/blob/90822fecd8422ffa4551a7fbe96e7dc2933fbe44/images/array/push.png" width="250px" height="400px" 
+<img src= "https://github.com/Joon2000/Solidity-modules/blob/80254c7fa686f0d682fa8a760028adf557e90fb8/images/array/push2.png" width="250px" height="400px" 
   title="push" alt="push"><br/>
 
 - Remove(index)를 진행하면 해당 index의 값은 지워지지만, length는 그대로인 것을 확인할 수 있습니다. </br>
@@ -81,7 +81,7 @@ contract Array {
   title="setStateVariable" alt="setStateVariable"><br/>
 
 - 또한 pop()을 활용해 마지막 index에 존재하는 값을 지우는 것을 확인할 수 있습니다. </br>
-<img src= "https://github.com/Joon2000/Solidity-modules/blob/90822fecd8422ffa4551a7fbe96e7dc2933fbe44/images/array/befpop.png" width="250px" height="400px" 
+<img src= "https://github.com/Joon2000/Solidity-modules/blob/80254c7fa686f0d682fa8a760028adf557e90fb8/images/array/befpop2.png" width="250px" height="400px" 
   title="setStateVariable" alt="setStateVariable">
 <img src= "https://github.com/Joon2000/Solidity-modules/blob/90822fecd8422ffa4551a7fbe96e7dc2933fbe44/images/array/afpop.png" width="250px" height="400px" 
   title="setStateVariable" alt="setStateVariable"><br/>
