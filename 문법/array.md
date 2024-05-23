@@ -68,7 +68,7 @@ contract Array {
 2. 예제 코드를 compile 후 deploy합니다.
 3. 아래 버튼들이 제대로 동작하는지 확인합니다.
 
-- 초기화된 상태에서 getArr, getLength 버튼을 누르면 빈 array와 length가 0인 것을 확인할 수 있습니다.
+- 초기화된 상태에서 getArr, getLength 버튼을 누르면 빈 array와 length가 0인 것을 확인할 수 있습니다. </br>
 <img src= "https://github.com/Joon2000/Solidity-modules/blob/90822fecd8422ffa4551a7fbe96e7dc2933fbe44/images/array/init.png" width="250px" height="400px" 
   title="init" alt="init"><br/>
 
@@ -76,7 +76,7 @@ contract Array {
 <img src= "https://github.com/Joon2000/Solidity-modules/blob/90822fecd8422ffa4551a7fbe96e7dc2933fbe44/images/array/push.png" width="250px" height="400px" 
   title="push" alt="push"><br/>
 
-- Remove(index)를 진행하면 해당 index의 값은 지워지지만, length는 그대로인 것을 확인할 수 있습니다.
+- Remove(index)를 진행하면 해당 index의 값은 지워지지만, length는 그대로인 것을 확인할 수 있습니다. </br>
 <img src= "https://github.com/Joon2000/Solidity-modules/blob/90822fecd8422ffa4551a7fbe96e7dc2933fbe44/images/array/remove.png" width="250px" height="400px" 
   title="setStateVariable" alt="setStateVariable"><br/>
 
