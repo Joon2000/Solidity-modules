@@ -1,18 +1,17 @@
 # Counting Contract
 
-### Contract
-Contract 함수는 Smart Contract 내에서 특정 작업을 수행하는 코드 블록입니다. 블록체인 네트워크에서 호출될 때 실행됩니다.<br>
-</br>
+## Contract
+Contract 함수는 Smart Contract 내에서 특정 작업을 수행하는 코드 블록입니다. 블록체인 네트워크에서 호출될 때 실행됩니다.
 
-#### Contract 실행 범위 
-- public : 모든 Smart Contract가 호출할 수 있는 함수입니다. </br>
-- private : 동일한 Smart Contract 내부에서만 호출될 수 있습니다. 상속받은 Smart Contract에서는 접근할 수 없습니다. </br>
-- external : 외부 Smart Contract, 트랜젝션에 의해서만 호출될 수 있는 함수입니다. </br>
-- internal : Smart Contract 내부에서만 호출될 수 있는 함수입니다. </br>
+### Contract 실행 범위
+- **public**: 모든 Smart Contract가 호출할 수 있는 함수입니다.
+- **private**: 동일한 Smart Contract 내부에서만 호출될 수 있습니다. 상속받은 Smart Contract에서는 접근할 수 없습니다.
+- **external**: 외부 Smart Contract나 트랜잭션에 의해서만 호출될 수 있는 함수입니다.
+- **internal**: Smart Contract 내부에서만 호출될 수 있는 함수입니다.
 
-#### Contract 상태 변경 
-- 상태를 변경하는 함수 : 블록체인 상태를 변경하며, 가스를 소비합니다.
-- 조회 함수 : 상태를 변경하지 않으며, 가스를 소비하지 않습니다. 'view', 'pure' 키워드를 사용합니다.
+### Contract 상태 변경
+- **상태를 변경하는 함수**: 블록체인 상태를 변경하며, 가스를 소비합니다.
+- **조회 함수**: 상태를 변경하지 않으며, 가스를 소비하지 않습니다. `view`, `pure` 키워드를 사용합니다.
 
 ## 예제 코드
 ```bash
