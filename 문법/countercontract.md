@@ -15,7 +15,6 @@ Contract 함수는 Smart Contract 내에서 특정 작업을 수행하는 코드
 - 조회 함수 : 상태를 변경하지 않으며, 가스를 소비하지 않습니다. 'view', 'pure' 키워드를 사용합니다.
 
 ## 예제 코드
-Counting Contract, uint256 변수 조회, 증가, 감소 함수를 구현한 코드입니다.
 ```bash
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
@@ -42,6 +41,46 @@ contract Counter {
     }
 } 
 ```
+
+#### Contract 설명
+이 예제는 간단한 카운터를 구현한 스마트 계약입니다. `count`라는 `uint256` 타입의 변수를 조회, 증가, 감소시키는 기능을 포함하고 있습니다.
+
+#### 상태 변수
+```solidity
+uint256 public count;
+```
+- `count`는 unsigned 256-bit 정수형 변수로, 카운터의 값을 저장합니다. 
+- `public` 키워드를 사용하여 자동으로 getter 함수가 생성됩니다.
+
+#### get 함수
+```solidity
+function get() public view returns (uint256) {
+    return count;
+}
+```
+- 현재 `count` 값을 반환하는 함수입니다.
+- `view` 키워드를 사용하여 상태를 변경하지 않고 조회만 합니다.
+
+#### inc 함수
+```solidity
+function inc() public {
+    count += 1;
+}
+```
+- `count` 값을 1 증가시키는 함수입니다.
+- `public` 키워드를 사용하여 누구나 호출할 수 있습니다.
+
+#### dec 함수
+```solidity
+function dec() public {
+    require(count > 0, "Counter is already zero");
+    count -= 1;
+}
+```
+- `count` 값을 1 감소시키는 함수입니다.
+- `require` 구문을 사용하여 `count`가 0보다 큰 경우에만 감소시킵니다.
+- `count`가 0인 경우, "Counter is already zero" 에러 메시지를 출력합니다.
+
 
 ## Remix에서 실습 
 1. Remix에서 새로운 solidity 파일 생성해서 예제 코드를 복사 붙여넣기 합니다.
