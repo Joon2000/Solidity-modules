@@ -79,5 +79,6 @@ contract ForLoopExample {
 
 
 -  sumNumbers 결과 확인 
-<img src= "https://github.com/Joon2000/Solidity-modules/blob/c4761d107c2dbf02f7c9680e619d87b1263cc26c/images/loop/for.png" width="250px" height="400px" 
+
+<img src= "https://github.com/Joon2000/Solidity-modules/blob/patch-2/images/loop/for.png" width="250px" height="400px" 
   title="for" alt="for"><br/>
