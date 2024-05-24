@@ -62,6 +62,59 @@ contract Array {
 }
 ```
 
+#### Array 초기화 방법
+1. `uint256[] public arr;` : 빈 배열을 선언합니다.
+2. `uint256[] public arr2 = [1, 2, 3];` : `[1, 2, 3]` 값으로 초기화된 배열을 선언합니다.
+3. `uint256[10] public myFixedSizeArr;` : 고정 크기(10)의 배열을 선언하며, 모든 값은 0으로 초기화됩니다.
+
+#### get 함수
+```solidity
+function get(uint256 i) public view returns (uint256) {
+    return arr[i];
+}
+```
+- `i` 번째 인덱스에 있는 배열 값을 반환합니다.
+
+#### getArr 함수
+```solidity
+function getArr() public view returns (uint256[] memory) {
+    return arr;
+}
+```
+- 배열 전체를 반환합니다. 배열의 크기가 클 경우 사용을 지양하는 것이 좋습니다.
+
+#### push 함수
+```solidity
+function push(uint256 i) public {
+    arr.push(i);
+}
+```
+- 배열의 마지막에 값을 추가합니다. 배열의 길이가 1 증가합니다.
+
+#### pop 함수
+```solidity
+function pop() public {
+    arr.pop();
+}
+```
+- 배열의 마지막 값을 삭제합니다. 배열의 길이가 1 감소합니다.
+
+#### getLength 함수
+```solidity
+function getLength() public view returns (uint256) {
+    return arr.length;
+}
+```
+- 배열의 길이를 반환합니다.
+
+#### remove 함수
+```solidity
+function remove(uint256 index) public {
+    delete arr[index];
+}
+```
+- 특정 인덱스의 값을 삭제합니다. 배열의 길이는 변하지 않으며, 해당 인덱스의 값은 초기화되어 0이 됩니다.
+
 
 ## Remix에서 실습 
 1. Remix에서 새로운 solidity 파일 생성해서 예제 코드를 복사 붙여넣기 합니다.
