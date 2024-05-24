@@ -1,24 +1,21 @@
 # State Variable 
-Solidity에서 State Variable(State 변수)는 Smart Contract의 상태를 저장하는 데 사용되는 변수입니다. 
-이 변수들은 블록체인에 영구적으로 저장되며, 계약의 상태를 나타내는 중요한 요소입니다. 
+Solidity에서 State Variable(State 변수)는 Smart Contract의 상태를 저장하는 데 사용되는 변수입니다. 이 변수들은 블록체인에 영구적으로 저장되며, 계약의 상태를 나타내는 중요한 요소입니다.
 
-### State Variable의 특징 
-- 영구 저장 : State Variable는 블록체인에 저장되기 때문에, 트랜잭션이 종료된 후에도 그 값이 유지됩니다. <br>
-- 가스 비용 : State Variable를 작성하는 것은 가스 비용을 수반합니다. <br>
-- 전역 접근 : State Variable는 Contract의 모든 함수에서 접근할 수 있습니다. Contract의 다양한 함수들이 같은 State를 공유합니다. <br>
-
-
+## State Variable의 특징
+- **영구 저장**: State Variable는 블록체인에 저장되기 때문에, 트랜잭션이 종료된 후에도 그 값이 유지됩니다.
+- **가스 비용**: State Variable를 작성하는 것은 가스 비용을 수반합니다.
+- **전역 접근**: State Variable는 Contract의 모든 함수에서 접근할 수 있습니다. Contract의 다양한 함수들이 같은 State를 공유합니다.
 
 ## 예제 코드
-```bash
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24; 
 
 contract SimpleStorage {
-    // num값을 저장하기 위한 State 변수 선언
+    // num 값을 저장하기 위한 State 변수 선언
     uint256 public num;
 
-    // State 변수의 값을 설정하는 경우, 트랜젝션을 보냅니다.
+    // State 변수의 값을 설정하는 경우, 트랜잭션을 보냅니다.
     function set(uint256 _num) public {
         num = _num;
     }
@@ -28,8 +25,35 @@ contract SimpleStorage {
         return num;
     }
 }
-
 ```
+
+### 예제 코드 설명
+
+#### 상태 변수
+```solidity
+uint256 public num;
+```
+- `num`은 `uint256` 타입의 상태 변수로, 스마트 계약의 상태를 저장하는 데 사용됩니다.
+- `public` 키워드를 사용하여 자동으로 getter 함수가 생성됩니다.
+
+#### set 함수
+```solidity
+function set(uint256 _num) public {
+    num = _num;
+}
+```
+- `num` 변수의 값을 설정하는 함수입니다.
+- 이 함수는 트랜잭션을 생성하므로 가스 비용이 발생합니다.
+- `_num` 매개변수로 전달된 값을 `num`에 저장합니다.
+
+#### get 함수
+```solidity
+function get() public view returns (uint256) {
+    return num;
+}
+```
+- `num` 변수의 값을 반환하는 함수입니다.
+- 이 함수는 상태를 변경하지 않으므로 트랜잭션을 생성하지 않으며 가스 비용이 발생하지 않습니다.
 
 
 ## Remix에서 실습 
