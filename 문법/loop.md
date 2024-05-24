@@ -1,4 +1,4 @@
-# loops 
+# Loop 
 loop(반복문)은 같은 작업이 여러번 반복되어야 할 때 사용됩니다. 
 
 Solidity는 3가지의 loop을 지원합니다
@@ -80,5 +80,10 @@ contract ForLoopExample {
 
 -  sumNumbers 결과 확인 
 
-<img src= "https://github.com/Joon2000/Solidity-modules/blob/patch-2/images/loop/for.png" width="250px" height="400px" 
+### 결과 설명 
+1. for loop 밖에 지역 변수 sum = 0 을 선언하여 합산 값을 저장할 수 있게 합니다. 
+2. for loop이 배열 numbers의 값을 차례로 읽어 sum에 값을 더합니다. 
+3. sum에 배열 numbers의 값이 전부 더해져 결과로 출력되게 됩니다. 
+
+<img src= "https://github.com/Joon2000/Solidity-modules/blob/patch-2/images/loop/for.png" width="400px" height="250px" 
   title="for" alt="for"><br/>
