@@ -1,28 +1,29 @@
 # Gas, Gas fee and Ethereum Units
 
-### Gas
-Gas는 Transaction을 실행하기 위해 얼마나 Ether가 필요한지를 나타내는 것입니다.
-Ether = Gas spent * Gas price
-- Gas는 계산 단위입니다.
-- Gas spent는 Transcation 중에 사용된 가스 총량입니다.
-- Gas price는 각 Gas마다 몇 Ether를 지불해야 되는지 나타내는 값입니다.
+## Gas
+Gas는 트랜잭션을 실행하기 위해 얼마나 많은 Ether가 필요한지를 나타내는 단위입니다.
+- **Ether** = Gas spent * Gas price
+    - **Gas** : 계산 단위입니다.
+    - **Gas spent** : 트랜잭션 중에 사용된 총 가스 양입니다.
+    - **Gas price** : 각 Gas마다 몇 Ether를 지불해야 하는지를 나타내는 값입니다.
 
-#### Gas price가 높은 Transaction은 블록 안에서 높은 우선순위를 갖습니다.
+#### Gas price가 높은 트랜잭션은 블록 안에서 높은 우선순위를 갖습니다.
 #### 사용되지 않은 Gas는 돌려받습니다.
 
-### Gas Limit 
-- gas limit : transaction에 최대로 사용할 가스를 정할 수 있습니다. 사용자가 정하는 값입니다.
-- block gas limit : 하나의 블록에서 허용된 최대 가스 양입니다. 네트워크가 정하는 값입니다.
+## Gas Limit
+- **Gas limit** : 트랜잭션에 사용할 수 있는 최대 가스를 설정합니다. 사용자가 정하는 값입니다.
+- **Block gas limit** : 하나의 블록에서 허용된 최대 가스 양입니다. 네트워크가 정하는 값입니다.
 
-### EtherUnits
+## Ether Units
 Ethereum에서 Ether Units는 주로 거래 금액을 나타내는 데 사용됩니다. Ether는 다양한 단위로 나눌 수 있으며, 서로 다른 규모의 금액을 표현합니다. Gas를 계산할 때 다양한 단위가 사용됩니다. Solidity 내에서 단위를 직관적으로 사용할 수 있습니다.
-
-- Wei : Ethereum에서 가장 작은 단위로, 1 Ether = 10^18 Wei입니다.
-- GWei : 1 Gwei = 10**9 Wei
-- Ether : 기본 단위로, 1 Ether = 10**18 Wei입니다.
+- **Wei** : Ethereum에서 가장 작은 단위로, 1 Ether = 10^18 Wei입니다.
+- **GWei** : 1 Gwei = 10^9 Wei
+- **Ether** : 기본 단위로, 1 Ether = 10^18 Wei입니다.
 
 ## 예제 코드
-```bash
+
+### Gas 예제
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
@@ -33,17 +34,32 @@ contract Gas {
     // State 변화는 다시 원상태로 돌아옵니다. 
     // 사용된 Gas는 돌려받지 않습니다.
     function forever() public {
-        // 모든 가스를 소모할 때까지 반복문을 실행하며 Transaction이 실패하도록 합니다.
+        // 모든 가스를 소모할 때까지 반복문을 실행하여 Transaction이 실패하도록 합니다.
         while (true) {
             i += 1;
         }
     }
 }
-
 ```
 
-#### bool : return 값이 True / False 입니다.
-```bash
+### Gas 예제 설명
+이 예제는 무한 루프를 사용하여 모든 가스를 소모하게 만드는 함수입니다. 트랜잭션이 실패하면 상태 변화는 원상태로 돌아가며, 사용된 Gas는 돌려받지 않습니다.
+
+#### 상태 변수
+- `uint256 public i = 0;`: 반복문에서 증가시키는 정수형 변수입니다.
+
+#### forever 함수
+```solidity
+function forever() public {
+    while (true) {
+        i += 1;
+    }
+}
+```
+- 무한 루프를 통해 모든 가스를 소모하게 하여 트랜잭션을 실패하게 만듭니다.
+
+### EtherUnits 예제
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
@@ -58,10 +74,23 @@ contract EtherUnits {
     // 1 gwei == 1e9 (10**9) 확인하는 bool
     bool public isOneGwei = (oneGwei == 1e9);
 
-    // 1 gwei == 1e9 (10**18) 확인하는 bool
+    // 1 ether == 1e18 (10**18) 확인하는 bool
     bool public isOneEther = (oneEther == 1e18);
 }
 ```
+
+### EtherUnits 예제 설명
+이 예제는 Ethereum에서 다양한 단위로 Ether를 나타내고 이를 확인하는 기능을 구현합니다.
+
+#### 상태 변수
+- `uint256 public oneWei = 1 wei;` : 1 Wei 단위
+- `uint256 public oneGwei = 1 gwei;` : 1 Gwei 단위
+- `uint256 public oneEther = 1 ether;` : 1 Ether 단위
+
+#### bool 확인 변수
+- `bool public isOneWei = (oneWei == 1);` : 1 Wei가 1과 같은지 확인합니다.
+- `bool public isOneGwei = (oneGwei == 1e9);` : 1 Gwei가 10^9 Wei와 같은지 확인합니다.
+- `bool public isOneEther = (oneEther == 1e18);` : 1 Ether가 10^18 Wei와 같은지 확인합니다.
 
 ## Remix에서 실습 
 1. Remix에서 새로운 solidity 파일 생성해서 예제 코드를 복사 붙여넣기 합니다.
