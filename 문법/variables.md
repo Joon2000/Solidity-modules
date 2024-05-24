@@ -24,7 +24,7 @@ Solidity에서 State Variable(State 변수)는 Smart Contract의 상태를 저�
 
 Solidity에서 Global Variables는 함수나 계약 내에서 언제든지 사용할 수 있는 미리 정의된 변수들입니다. 이 변수들은 블록체인, 계약, 트랜잭션 데이터를 제공합니다. Solidity에서 자주 사용되는 Global Variables는 다음과 같습니다:
 
-## State Variable 예시 
+## Global Variable 예시 
 
 block.coinbase (address): 현재 블록의 채굴자 주소를 반환합니다.  
 block.difficulty (uint): 현재 블록의 난이도를 반환합니다.  
@@ -59,18 +59,6 @@ contract Variables {
 ```
 
 
-## Remix에서 실습 
-1. Remix에서 새로운 solidity 파일 생성해서 예제 코드를 복사 붙여넣기 합니다.
-2. 예제 코드를 compile 후 deploy합니다.
-3. 아래 버튼들이 제대로 동작하는지 확인합니다.
-
-- StateVariable이 작성된 경우
-<img src= "https://github.com/Joon2000/Solidity-modules/blob/c4761d107c2dbf02f7c9680e619d87b1263cc26c/images/statevariable/SetStateVariable.png" width="1000px" height="400px" 
-  title="setStateVariable" alt="setStateVariable"><br/>
-
-- StateVariable 조회하는 경우 (트랜잭션 발생, 가스 비용 발생) <br>
-<img src= "https://github.com/Joon2000/Solidity-modules/blob/c4761d107c2dbf02f7c9680e619d87b1263cc26c/images/statevariable/GetStateVariable.png" width="250px" height="400px" 
-  title="getStateVariable" alt="getStateVariable"><br/>
 
 
 
