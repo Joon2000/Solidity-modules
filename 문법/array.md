@@ -1,15 +1,15 @@
 # Array
 Solidity에서 Array는 동일한 유형의 데이터 집합을 저장하는 데 사용됩니다. Compile-time fixed size, dynamic size 두 가지 유형으로 나눌 수 있습니다.
 
-## Fixed-size Array
+### Fixed-size Array
 - 고정된 크기를 가지며 선언 시 크기를 정의합니다.
 - 크기가 고정되어 있어 나중에 변경할 수 없습니다. (push, pop 함수를 사용 못 합니다)
 
-## Dynamic Array
+### Dynamic Array
 - 크기가 고정되지 않고 동적으로 변경될 수 있습니다.
 - 요소를 추가하거나 제거할 수 있습니다.
 
-## Array의 특성
+### Array의 특성
 - `storage`, `memory` 키워드를 사용하여 array의 저장 위치를 지정할 수 있습니다.
     - **storage**: State variable로서 블록체인에 저장됩니다.
     - **memory**: Function 내에서 임시로 사용되며, function 호출이 끝나면 사라집니다.
