@@ -205,3 +205,5 @@ contract Primitives {
 
 - **기본값 확인**
     - 변수 이름의 버튼을 클릭해 초기화되지 않은 변수의 기본값을 확인합니다.
+ 
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/fab29312-a6dc-4d0a-8e5f-fb583b57c35f)
