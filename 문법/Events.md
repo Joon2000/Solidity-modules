@@ -75,3 +75,4 @@ contract Event {
     - 로그 항목 중 `Log` 이벤트가 `msg.sender`와 `"Hello EVM!"` 메시지를 포함하는지 확인합니다.
     - 로그 항목 중 `AnotherLog` 이벤트가 발생했는지 확인합니다.
 
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/571c2069-c524-4f7f-8860-5c02e000006d)
