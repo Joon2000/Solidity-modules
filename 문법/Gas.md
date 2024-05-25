@@ -74,3 +74,11 @@ contract Gas {
 - **상태 확인**
     - 트랜잭션이 실패한 후, `i` 변수가 여전히 `0`인지 확인합니다.
     - `i` 변수가 변경되지 않았는지 확인하려면 `i` 버튼을 다시 클릭하여 값을 확인합니다.
+
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/e0f083d5-e2d4-4e7c-9d27-c58611babfd9)
+
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/e25eb7db-1f8e-4937-b683-8bfdf1727d2f)
+
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/8a2d39df-5c5e-40e0-8bb7-1579bc806c09)
+
+
