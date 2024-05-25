@@ -131,3 +131,16 @@ contract Enum {
 - **상태 재설정**
     - `reset` 버튼을 클릭합니다.
     - `getStatus` 버튼을 클릭하여 상태가 초기값인 `Pending (0)`으로 재설정된 것을 확인합니다.
+
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/5a021570-5abe-4eae-a181-147641783524)
+
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/77b1aaea-59fe-4531-baad-e1c4756b4460)
+
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/d7b6b3da-b2c1-46be-8ac3-2bfdcedefd4f)
+
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/da6fbfa6-db52-4069-a271-5da3871d3968)
+
+
+
+
+
