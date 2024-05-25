@@ -133,3 +133,5 @@ contract ViewAndPure {
 - **pure 함수 테스트 (`add`)**
     - `add` 함수에 두 개의 임의의 값 (예: 3과 4)을 입력하고 호출합니다.
     - `add(3, 4)` 버튼을 클릭하여 반환값이 `7`(3+4)인지 확인합니다.
+
+![image](https://github.com/Joon2000/Solidity-modules/assets/69339099/2e61c307-721e-4112-ad01-12781827767a)
