@@ -58,28 +58,20 @@ contract Event {
 2. **저렴한 저장소**: 이벤트 로그는 저렴한 저장 공간을 제공합니다. 이벤트를 사용하면 상태 변수를 사용하지 않고도 블록체인에 정보를 저장할 수 있습니다.
 3. **인덱싱 및 필터링**: 인덱싱된 매개변수를 사용하여 로그를 필터링할 수 있어, 특정 이벤트를 쉽게 추적할 수 있습니다.
 
-### 예제 코드 설명
-
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
-
-contract Event {
-    // 이벤트 선언
-    event Log(address indexed sender, string message);
-    event AnotherLog();
-
-    // 함수 내에서 이벤트 호출
-    function test() public {
-        emit Log(msg.sender, "Hello World!"); // 로그 기록
-        emit Log(msg.sender, "Hello EVM!");   // 로그 기록
-        emit AnotherLog();                    // 또 다른 로그 기록
-    }
-}
-```
-
-위 예제에서 `test` 함수가 호출되면, 두 개의 `Log` 이벤트와 하나의 `AnotherLog` 이벤트가 발생합니다. 각 이벤트는 블록체인에 로그로 기록되며, 나중에 이벤트 로그를 조회하거나 특정 이벤트 발생을
-추적하는 데 사용할 수 있습니다.
-
 ### Remix 실습
- 
+
+1. [Remix IDE](https://remix.ethereum.org/)에 접속합니다.
+2. 새 파일을 만들어 위 예제 코드를 복사하여 붙여넣고 파일을 저장합니다.
+3. 좌측 메뉴에서 "Solidity 컴파일러"를 이용해 코드를 컴파일하고, Deploy합니다.
+
+##### 기능확인
+
+- **이벤트 발생 확인**
+    - 배포된 컨트랙트 인스턴스에서 `test` 함수를 실행합니다.
+    - `test` 버튼을 클릭하여 트랜잭션을 전송합니다.
+
+- 아래 "Logs" 섹션에서 발생한 이벤트를 확인합니다.
+    - 로그 항목 중 `Log` 이벤트가 `msg.sender`와 `"Hello World!"` 메시지를 포함하는지 확인합니다.
+    - 로그 항목 중 `Log` 이벤트가 `msg.sender`와 `"Hello EVM!"` 메시지를 포함하는지 확인합니다.
+    - 로그 항목 중 `AnotherLog` 이벤트가 발생했는지 확인합니다.
+
