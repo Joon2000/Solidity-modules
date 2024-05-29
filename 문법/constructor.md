@@ -99,8 +99,8 @@ view function으로 owner값을 리턴합니다.
 
 - value에 1을 넣고 deploy 합니다.
   
-![image](https://github.com/mmingyeomm/nestJS/assets/87323564/66da8dce-47ac-4370-a30e-17276fc776d4)
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/66da8dce-47ac-4370-a30e-17276fc776d4)  
 
+- getValue와 getOwner을 통해 value와 owner가 각각 1, msg.sender로 초기화 되었음을 확인합니다.
 
-- getValue와 getOwner을 통해 value와 owner가 각각 1, msg.sender로 초기화 되었음을 확인합니다. 
 ![image](https://github.com/mmingyeomm/nestJS/assets/87323564/7f5ca5fb-a66c-4e06-8f30-743164a9468c)
