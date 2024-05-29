@@ -97,7 +97,8 @@ view function으로 owner값을 리턴합니다.
 2. 예제 코드를 compile 후 deploy합니다.
 3. 아래 버튼들이 제대로 동작하는지 확인합니다.
 
-- value에 1을 넣고 deploy 합니다. 
+- value에 1을 넣고 deploy 합니다.
+  
 ![image](https://github.com/mmingyeomm/nestJS/assets/87323564/66da8dce-47ac-4370-a30e-17276fc776d4)
 
 
