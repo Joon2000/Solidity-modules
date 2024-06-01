@@ -1,0 +1,276 @@
+# Visibility
+
+Solidity에서 함수와 상태 변수의 가시성(Visibility)은 해당 요소들이 다른 계약이나 계정에서 접근 가능한지 여부를 결정한다.
+함수와 상태 변수는 접근 제한을 명시적으로 설정해야 하며, 이를 통해 스마트 계약의 보안성과 구조를 강화할 수 있다.
+
+### 학습 목표
+
+1. 가시성(Visibility) 개념 이해:
+    - 함수와 상태 변수의 가시성 수준인 `public`, `private`, `internal`, `external`의 차이점을 이해한다.
+    - 각 가시성 수준이 함수와 상태 변수에 어떻게 적용되는지 배운다.
+
+2. 가시성 설정 방법:
+    - 각 가시성 수준을 코드에서 어떻게 선언하는지 학습한다.
+    - 각 가시성 수준이 코드 내에서 어떻게 동작하는지 예제를 통해 배운다.
+
+3. 상속과 가시성:
+    - 상속받은 계약에서 가시성 수준에 따라 함수와 상태 변수에 접근할 수 있는 범위를 이해한다.
+    - `private` 가시성 수준의 함수와 상태 변수는 상속받은 계약에서 접근할 수 없음을 학습한다.
+    - `internal` 가시성 수준의 함수와 상태 변수는 상속받은 계약에서도 접근할 수 있음을 이해한다.
+
+4. 외부 함수 호출:
+    - `external` 가시성 수준의 함수는 외부 계약이나 계정에서만 호출할 수 있음을 이해한다.
+    - 내부 계약에서 `external` 함수를 호출하려면 `this`를 사용해야 함을 학습한다.
+
+5. 함수와 상태 변수의 사용 예제:
+    - Remix IDE에서 배포된 계약 인스턴스를 사용하여 `testPrivateFunc`, `testInternalFunc`, `publicFunc`, `externalFunc`와 같은 함수를 호출하여
+      반환값을 확인함으로써 가시성 수준에 따른 동작 방식을
+      학습한다.
+
+## 함수의 Visibility
+
+함수는 네 가지 가시성(Visibility) 수준으로 선언할 수 있다: `public`, `private`, `internal`, `external`.
+
+### `public`
+
+`public` 함수는 다음과 같은 특성을 가진다:
+
+- 모든 계약과 계정에서 호출할 수 있다.
+- 내부적으로도 호출할 수 있다.
+
+```solidity
+function publicFunc() public pure returns (string memory) {
+    return "public function called";
+}
+```
+
+### `private`
+
+`private` 함수는 다음과 같은 특성을 가진다:
+
+- 오직 해당 함수를 정의한 계약 내부에서만 호출할 수 있다.
+- 상속받은 계약에서는 호출할 수 없다.
+
+```solidity
+function privateFunc() private pure returns (string memory) {
+    return "private function called";
+}
+```
+
+### `internal`
+
+`internal` 함수는 다음과 같은 특성을 가진다:
+
+- 해당 계약 내부와 이를 상속받은 계약에서 호출할 수 있다.
+- 외부 계약이나 계정에서는 호출할 수 없다.
+
+```solidity
+function internalFunc() internal pure returns (string memory) {
+    return "internal function called";
+}
+```
+
+### `external`
+
+`external` 함수는 다음과 같은 특성을 가진다:
+
+- 다른 계약과 계정에서 호출할 수 있다.
+- 해당 함수를 정의한 계약 내부에서는 `this`를 통해서만 호출할 수 있다.
+
+```solidity
+function externalFunc() external pure returns (string memory) {
+    return "external function called";
+}
+```
+
+내부에서 호출하려고 하면 컴파일 오류가 발생한다.
+
+```solidity
+// This function will not compile
+// function testExternalFunc() public pure returns (string memory) {
+//     return externalFunc();
+// }
+```
+
+## 상태 변수의 가시성
+
+상태 변수는 세 가지 가시성 수준으로 선언할 수 있다: `public`, `private`, `internal`.
+
+### `public`
+
+`public` 상태 변수는 다음과 같은 특성을 가진다:
+
+- 자동으로 getter 함수가 생성된다.
+- 모든 계약과 계정에서 접근할 수 있다.
+
+```solidity
+string public publicVar = "my public variable";
+```
+
+### `private`
+
+`private` 상태 변수는 다음과 같은 특성을 가진다:
+
+- 오직 해당 변수를 정의한 계약 내부에서만 접근할 수 있다.
+- 상속받은 계약에서도 접근할 수 없다.
+
+```solidity
+string private privateVar = "my private variable";
+```
+
+### `internal`
+
+`internal` 상태 변수는 다음과 같은 특성을 가진다:
+
+- 해당 계약 내부와 이를 상속받은 계약에서 접근할 수 있다.
+- 외부 계약이나 계정에서는 접근할 수 없다.
+
+```solidity
+string internal internalVar = "my internal variable";
+```
+
+`external` 가시성은 상태 변수에 사용할 수 없다. 따라서 아래 코드는 컴파일되지 않는다.
+
+```solidity
+// State variables cannot be external
+// string external externalVar = "my external variable";
+```
+
+## 상속과 가시성
+
+상속받은 계약은 `private` 가시성을 가진 함수와 상태 변수에 접근할 수 없다. 하지만 `internal` 가시성을 가진 요소는 접근할 수 있다.
+
+```solidity
+contract Child is Base {
+    // This will not compile
+    // function testPrivateFunc() public pure returns (string memory) {
+    //     return privateFunc();
+    // }
+
+    // Internal function can be called inside child contracts.
+    function testInternalFunc() public pure override returns (string memory) {
+        return internalFunc();
+    }
+}
+```
+
+## 미션 : Remix 실습
+
+1. [Remix IDE](https://remix.ethereum.org/)에 접속한다.
+2. 새 파일을 만들어 예제 코드를 입력한다.
+3. 코드 작성 및 수정: 각 단계별로 주석을 풀거나 가시성 수준을 변경하며 코드를 수정한다.
+4. 컴파일: 각 수정 후 코드를 컴파일하여 오류 발생 여부를 확인한다.
+5. 배포: 수정된 코드를 배포하고 배포된 계약 인스턴스를 사용하여 함수를 호출한다.
+6. 결과 확인: 함수 호출 결과를 확인하고 예상된 동작과 실제 동작을 비교한다.
+
+### 단계별 미션 수행
+
+#### 1. 주석 처리된 코드 풀기 및 실행
+
+##### 1.1 `Base` 계약의 주석 해제 및 테스트
+
+- `testExternalFunc` 함수 주석 해제
+  ```solidity
+  // This function will not compile since we're trying to call
+  // an external function here.
+  function testExternalFunc() public pure returns (string memory) {
+      return externalFunc();
+  }
+  ```
+    - 주석을 해제하고 컴파일을 시도한다. `external` 함수는 내부에서 직접 호출할 수 없기 때문에 컴파일 에러가 발생한다.
+    - `external` 함수는 내부에서 `this.externalFunc()`와 같이 호출해야 함을 이해한다.
+
+#### 1.2 `Child` 계약의 주석 해제 및 테스트
+
+- `testPrivateFunc` 함수 주석 해제
+  ```solidity
+  // Inherited contracts do not have access to private functions
+  // and state variables.
+  function testPrivateFunc() public pure returns (string memory) {
+      return privateFunc();
+  }
+  ```
+    - 주석을 해제하고 컴파일을 시도한다. `private` 함수는 상속받은 계약에서 접근할 수 없기 때문에 컴파일 에러가 발생한다.
+    - `private` 함수와 상태 변수는 상속받은 계약에서 접근할 수 없음을 이해한다.
+
+### 2. 상태 변수 가시성 테스트
+
+- 각 가시성 수준의 상태 변수에 접근하는 함수를 작성하여 테스트해본다.
+
+#### 2.1 `Base` 계약에서 상태 변수 접근 함수 추가
+
+```solidity
+contract Base {
+    // Existing code...
+
+    // State variables
+    string private privateVar = "my private variable";
+    string internal internalVar = "my internal variable";
+    string public publicVar = "my public variable";
+
+    // Getter functions for state variables
+    function getPrivateVar() public view returns (string memory) {
+        return privateVar;
+    }
+
+    function getInternalVar() public view returns (string memory) {
+        return internalVar;
+    }
+
+    // publicVar는 자동으로 getter 함수가 생성됨
+}
+```
+
+- `getPrivateVar`와 `getInternalVar` 함수를 호출하여 각각의 상태 변수 값을 확인한다.
+    - `publicVar`는 자동으로 생성된 getter 함수를 통해 접근.
+- 상태 변수의 가시성에 따라 접근 방법과 가능 여부를 이해한다.
+
+### 3. 함수 가시성 수준 변경 및 테스트
+
+- 각 함수의 가시성 수준을 변경하여 동작을 확인해본다.
+
+#### 3.1 `Base` 계약에서 함수 가시성 변경
+
+```solidity
+contract Base {
+    // Changing visibility levels for testing
+
+    // Change privateFunc to internal
+    function privateFunc() internal pure returns (string memory) {
+        return "private function called";
+    }
+
+    // Change internalFunc to public
+    function internalFunc() public pure returns (string memory) {
+        return "internal function called";
+    }
+
+    // Change publicFunc to external
+    function publicFunc() external pure returns (string memory) {
+        return "public function called";
+    }
+
+    // Existing code...
+}
+```
+
+- 함수의 가시성을 변경한 후 각 함수를 호출하여 동작 확인한다. 변경된 가시성에 따라 호출 가능 여부와 반환값을 확인한다.
+- 가시성 수준에 따른 함수 호출 가능 여부와 그 영향을 이해한다.
+
+### 4. 상속 관계에서 함수 호출 테스트
+
+- 상속받은 계약에서 부모 계약의 함수를 호출하고, 가시성에 따른 접근 가능 여부를 확인한다.
+
+#### 4.1 `Child` 계약에서 부모 계약 함수 호출
+
+```solidity
+contract Child is Base {
+    // Call public function from Base (changed to external in this case)
+    function callParentPublicFunc() public view returns (string memory) {
+        return publicFunc();
+    }
+}
+```
+
+- `publicFunc`의 가시성이 `external`로 변경되었기 때문에, 직접 호출할 수 없음을 확인한다.
+- 상속받은 계약에서 부모 계약 함수의 가시성에 따른 접근 가능 여부를 이해한다.
