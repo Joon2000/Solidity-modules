@@ -1,0 +1,190 @@
+# 외부 컨트랙트 호출
+
+## 학습 목표
+- 외부 컨트랙트를 호출하는 개념을 이해한다.
+- 직접 호출과 저수준 호출의 차이점을 이해한다.
+- 예제 코드를 통해 외부 컨트랙트 호출 방법을 학습한다.
+
+## 외부 컨트랙트 호출 개념 설명
+
+Solidity에서 외부 컨트랙트를 호출하는 것은 다른 스마트 계약과 상호작용할 수 있는 중요한 기능이다. 외부 컨트랙트 호출 방법에는 두 가지가 있다:
+
+1. **직접 호출**: `A.foo(x, y, z)`와 같이 함수명을 직접 호출한다.
+2. **저수준 호출**: `call`을 사용하여 호출합니다. 이 방법은 에러 핸들링이 어렵고 보안 문제가 있을 수 있어 권장되지 않는다.
+
+## 외부 컨트랙트 호출 방법
+
+### 직접 호출
+
+직접 호출은 간단하고 직관적인 방법으로, 다른 컨트랙트의 함수를 호출할 때 사용된다.
+
+- 아래는 직접 호출하는 예제 코드다. `CallerContract`가 `CalledContract`의 값을 업데이트한다.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.3;
+
+contract CallerContract {
+    function setX(address _address, uint256 _x) external {
+        CalledContract(_address).setX(_x);
+    }
+}
+
+contract CalledContract {
+    uint public x;
+    uint public value = 123;
+
+    function setX(uint _x) external {
+        x = _x;
+    }
+}
+```
+
+- `CallerContractAndSendEther`가 `CalledContractReceivesEther`의 `x` 값을 업데이트할 뿐만 아니라, 호출 시 ETH도 전송한다.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.3;
+
+contract CallerContractAndSendEther {
+    function setXAndReceiveEther(address _address, uint256 _x) external payable {
+        CalledContractReceivesEther(_address).receiveXandreceiveEther{value: msg.value}(_x);
+    }
+}
+
+contract CalledContractReceivesEther {
+    uint public x;
+    uint public value = 123;
+
+    function receiveXandreceiveEther(uint _x) external payable {
+        x = _x;
+        value = msg.value;
+    }
+}
+```
+
+### 저수준 호출
+
+저수준 호출은 더 유연하지만 복잡하며, 주로 직접 호출이 불가능한 경우나 컨트랙트 주소가 동적으로 결정되는 경우 사용된다.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.3;
+
+contract CallerContractAndSendEther {
+    function setXAndReceiveEther(address _address, uint256 _x) external payable {
+        // function call, parameter를 encoding한다.
+        (bool success, bytes memory data) = _address.call{value: msg.value}(
+            abi.encodeWithSignature("receiveXandreceiveEther(uint256)", _x)
+        );
+
+        // call이 성공했는지 확인한다.
+        require(success, "Low-level call failed");
+    }
+}
+
+contract CalledContractReceivesEther {
+    uint public x;
+    uint public value = 123;
+
+    function receiveXandreceiveEther(uint _x) external payable {
+        x = _x;
+        value = msg.value;
+    }
+}
+```
+
+## 예제 코드
+
+다음은 외부 컨트랙트를 호출하는 간단한 예제다.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+// Callee 컨트랙트 정의
+contract Callee {
+    uint256 public x;
+    uint256 public value;
+
+    function setX(uint256 _x) public returns (uint256) {
+        x = _x;
+        return x;
+    }
+
+    function setXandSendEther(uint256 _x) public payable returns (uint256, uint256) {
+        x = _x;
+        value = msg.value;
+        return (x, value);
+    }
+}
+
+// Caller 컨트랙트 정의
+contract Caller {
+    function setX(Callee _callee, uint256 _x) public {
+        _callee.setX(_x);
+    }
+
+    function setXFromAddress(address _addr, uint256 _x) public {
+        Callee callee = Callee(_addr);
+        callee.setX(_x);
+    }
+
+    function setXandSendEther(Callee _callee, uint256 _x) public payable {
+        _callee.setXandSendEther{value: msg.value}(_x);
+    }
+}
+```
+
+### Callee 컨트랙트 설명
+
+```solidity
+uint256 public x;
+uint256 public value;
+
+function setX(uint256 _x) public returns (uint256) {
+    x = _x;
+    return x;
+}
+
+function setXandSendEther(uint256 _x) public payable returns (uint256, uint256) {
+    x = _x;
+    value = msg.value;
+    return (x, value);
+}
+```
+
+- `setX`: `_x` 값을 `x`에 설정하고 반환한다.
+- `setXandSendEther`: `_x` 값을 `x`에 설정하고 이더를 받으며, `_x`와 이더 값을 반환한다.
+
+### Caller 컨트랙트 설명
+
+```solidity
+function setX(Callee _callee, uint256 _x) public {
+    _callee.setX(_x);
+}
+
+function setXFromAddress(address _addr, uint256 _x) public {
+    Callee callee = Callee(_addr);
+    callee.setX(_x);
+}
+
+function setXandSendEther(Callee _callee, uint256 _x) public payable {
+    _callee.setXandSendEther{value: msg.value}(_x);
+}
+```
+
+- `setX`: `Callee` 컨트랙트를 호출하여 `_x` 값을 설정한다.
+- `setXFromAddress`: 주소를 통해 `Callee` 컨트랙트를 생성하고 호출하여 `_x` 값을 설정한다.
+- `setXandSendEther`: 이더를 보내면서 `_x` 값을 설정한다.
+
+## Remix에서 실습
+
+1. [Remix IDE](https://remix.ethereum.org/)에 접속한다.
+2. 새로운 Solidity 파일을 생성하여 예제 코드를 복사하여 붙여넣는다.
+3. 코드를 컴파일하고 배포한다.
+4. 아래 버튼들이 제대로 동작하는지 확인한다.
+
+- `setX`, `setXFromAddress`, `setXandSendEther`를 Callee smart contract address와 x값을 대입해 외부 contract를 성공적으로 호출할 수 있는 것을 확인할 수 있다. <br>
+  <img src="https://github.com/YoonHo-Chang/ludium-module/blob/789333214e6dc76a81b911b02dd06cb030ef1160/images/callothercontract.png" width="400px" height="300px" title="setStateVariable" alt="setStateVariable">
+  <img src="https://github.com/YoonHo-Chang/ludium-module/blob/789333214e6dc76a81b911b02dd06cb030ef1160/images/callothercontract2.png" width="1000px" height="150px" title="setStateVariable" alt="setStateVariable">
