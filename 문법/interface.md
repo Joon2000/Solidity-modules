@@ -1,0 +1,162 @@
+# Interface
+
+## 학습 목표
+- Interface의 개념을 이해한다.
+- Interface의 특징 및 주의사항을 이해한다.
+- 실제 예제를 통해 Interface를 선언하고 사용하는 방법을 학습한다.
+
+## Interface 개념 설명
+
+Solidity에서 Interface는 스마트 계약 간의 상호 작용을 정의하는 데 사용되는 중요한 개념이다. Interface는 스마트 계약이 어떻게 상호 작용할 수 있는지를 명확하게 정의하는 일종의 청사진을 제공한다. Interface는 함수 시그니처만 포함하고, 함수의 구현은 포함하지 않는다. 이는 다른 스마트 계약이 해당 인터페이스를 구현하는 방식을 강제하지 않으면서도 일관된 방법으로 상호 작용할 수 있게 한다.
+
+## Interface의 특징
+
+Interface는 다음과 같은 특징을 갖는다:
+
+- **함수 시그니처만 포함**: Interface는 함수의 이름, 매개 변수 및 반환 타입만 정의하고, 함수의 구현은 포함하지 않는다.
+- **상태 변수 및 생성자 정의 불가**: Interface는 상태 변수를 포함할 수 없으며, 생성자도 정의할 수 없다.
+- **상속 가능**: Interface는 다른 Interface로부터 상속받을 수 있다.
+
+## Abstract Contracts vs Interface
+
+- **Abstract Contracts**: 최소한 하나의 구현되지 않은 함수를 포함하며, 직접 컴파일할 수 없다. 다른 계약이 이를 상속하여 사용할 수 있다.
+- **Interface**: 어떠한 함수도 구현할 수 없으며, ABI가 표현할 수 있는 것에 제한된다. ABI와의 변환이 손쉽고 정보 손실이 없다.
+
+## 예제 코드
+
+다음은 Interface를 사용한 간단한 예제이다.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+// 간단한 Counter를 구현한 contract
+contract Counter {
+    uint256 public count;
+
+    function increment() external {
+        count += 1;
+    }
+}
+
+// Counter 계약의 interface로 호출 가능한 function들을 정의
+interface ICounter {
+    function count() external view returns (uint256);
+    function increment() external;
+}
+
+// ICounter interface를 사용하여 Counter contract과 상호 작용하는 contract
+contract MyContract {
+    function incrementCounter(address _counter) external {
+        ICounter(_counter).increment();
+    }
+
+    function getCount(address _counter) external view returns (uint256) {
+        return ICounter(_counter).count();
+    }
+}
+
+interface UniswapV2Factory {
+    function getPair(address tokenA, address tokenB) external view returns (address pair);
+}
+
+interface UniswapV2Pair {
+    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+}
+
+contract UniswapExample {
+    // UniswapV2Factory contract, DAI, WETH address
+    address private factory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address private dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address private weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+
+    // DAI, WETH pair의 reserve를 조회하여 반환한다.
+    function getTokenReserves() external view returns (uint256, uint256) {
+        // getPair function을 호출하여 DAI, WETH 페어의 address를 가져온다.
+        address pair = UniswapV2Factory(factory).getPair(dai, weth);
+        (uint256 reserve0, uint256 reserve1, ) = UniswapV2Pair(pair).getReserves();
+        return (reserve0, reserve1);
+    }
+}
+```
+
+### Counter 계약 설명
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+// 간단한 Counter를 구현한 contract
+contract Counter {
+    uint256 public count;
+
+    function increment() external {
+        count += 1;
+    }
+}
+
+// ICounter interface를 사용하여 Counter contract과 상호 작용하는 contract
+interface ICounter {
+    function count() external view returns (uint256);
+    function increment() external;
+}
+
+contract MyContract {
+    function incrementCounter(address _counter) external {
+        ICounter(_counter).increment();
+    }
+
+    function getCount(address _counter) external view returns (uint256) {
+        return ICounter(_counter).count();
+    }
+}
+```
+
+- `Counter` 계약은 `count` 상태 변수를 증가시키는 `increment` 함수를 포함한다.
+- `ICounter` 인터페이스는 `Counter` 계약의 함수와 상호작용하기 위해 사용된다.
+- `MyContract` 계약은 `ICounter` 인터페이스를 사용하여 `Counter` 계약과 상호작용한다.
+
+### Uniswap 예제
+
+```solidity
+interface UniswapV2Factory {
+    function getPair(address tokenA, address tokenB) external view returns (address pair);
+}
+
+interface UniswapV2Pair {
+    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+}
+
+contract UniswapExample {
+    // UniswapV2Factory contract, DAI, WETH address
+    address private factory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address private dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address private weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+
+    // DAI, WETH pair의 reserve를 조회하여 반환한다.
+    function getTokenReserves() external view returns (uint256, uint256) {
+        // getPair function을 호출하여 DAI, WETH 페어의 address를 가져온다.
+        address pair = UniswapV2Factory(factory).getPair(dai, weth);
+        (uint256 reserve0, uint256 reserve1, ) = UniswapV2Pair(pair).getReserves();
+        return (reserve0, reserve1);
+    }
+}
+```
+
+- `UniswapV2Factory` Interface는 주어진 두 토큰의 pair address를 가져오는 데 사용된다.
+- `UniswapV2Pair` Interface는 pair의 유동성 풀의 reserve를 가져오는 데 사용된다.
+- `UniswapExample` 계약은 이 두 Interface를 사용하여 DAI와 WETH의 유동성 풀 reserve를 조회한다.
+
+## Remix에서 실습
+
+1. [Remix IDE](https://remix.ethereum.org/)에 접속한다.
+2. 새로운 Solidity 파일을 생성하여 예제 코드를 복사하여 붙여넣는다.
+3. 코드를 컴파일하고 배포한다.
+4. 아래 버튼들이 제대로 동작하는지 확인한다.
+
+- Deploy 진행 후, ICounter interface를 활용해 구현한 Counter가 잘 작동하는지 확인한다. increment 1회한 후 count를 조회한 사진이다. interface를 활용해 잘 구현된 것을 확인할 수 있다. <br>
+   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/789333214e6dc76a81b911b02dd06cb030ef1160/images/interface.png" width="500px" height="300px" title="interface" alt="interface">
+
+- uniswap interface를 활용해 DAI, WETH pair의 reserve를 조회한다. <br>
+  <img src="https://github.com/YoonHo-Chang/ludium-module/blob/789333214e6dc76a81b911b02dd06cb030ef1160/images/interfaceuniswap.png" width="500px" height="300px" title="interface" alt="interface">
+
