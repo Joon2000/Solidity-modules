@@ -2,9 +2,9 @@ Inheritance
 ==========
 목표
 -----------
-- Solidity의 Inheritance에 대해서 배운다.
-- Remix에서 예제코드 실행
-- 작성한 예제코드 testnet에 배포
+- Solidity의 Inheritance를 배운다.
+- function과 state value의 override 방법을 익힌다.
+- multiple inheritance에서 함수 호출 우선순위를 이해한다.
 
 개요
 -------
