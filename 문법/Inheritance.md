@@ -1,0 +1,310 @@
+Inheritance
+==========
+목표
+-----------
+- Solidity의 Inheritance에 대해서 배운다.
+- Remix에서 예제코드 실행
+- 작성한 예제코드 testnet에 배포
+
+개요
+-------
+- Inheritance(상속)는 스마트 계약 간의 코드 재사용을 가능하게 해주는 기능이다.
+- Inheritance에는 parent(부모)와 child(자식) 관계가 있는데 parent의 속성(state value, function, modifier)등을 child에게 물려 줄 수가 있다.
+- 즉, solidity에서는 parent contract의 속성을 child contract에게 물려줄 수 있다.
+
+개념
+------
+1. **inheritance(기본 상속)**
+   - parent contract의 속성을 child contract에서 사용할 수 있다.
+2. **multiple inheritance(다중 상속)**
+   - solidity는 다중 상속을 지원하며, 하나의 child contract가 여러 개의 parent contract로 부터 상속을 받을 수 있다.
+3. **overriding**
+   - parent contract의 함수를 child contract에서 overriding(재정의)할 수 있다.
+   - 즉, parent contract에 있는 function의 기능은 무시하고 child contract에서 정의한 기능을 사용하는 것이다.
+4. **shadowing**
+   - function과 달리 state value는 재선언에 의해서 overriding 될 수 없다.
+   - 따라서 상속받은 state value를 overriding 하기 위해서는 constructor로 다시 생성해 주어야 한다.
+5. **super**
+   - super 키워드를 사용하면 모든 parent contract를 직접 불러올 수 있다.
+
+
+문법 설명
+-------
+- contract는 is 키워드로 상속할 수 있다.
+
+```solidity
+// parent contract Parent1
+contract Parent1{
+  // 컨트랙트 내용
+}
+
+// parent contract Parent2
+contract Parent2{
+  // 컨트랙트 내용
+}
+
+// child contract Child1
+contract Child1 is Parent1{
+  // 컨트랙트 내용
+}
+
+// 다중 상속을 하는 경우
+// child contract Child2
+contract Child2 is Parent1, Parent2{
+  // 컨트랙트 내용
+}
+
+```
+
+- overriding을 하는 경우 parent contract에는 virtual 키워드를, child contract에는 override 키워드를 명시해 주어야 한다.
+
+```solidity
+// parent contract Parent1
+contract Parent1{
+  function foo() public virtual returns (string memory){
+    return "A";
+  }
+}
+// child contract Child1
+contract Child1{
+  function foo() public override returns (string memory){
+    return "B";
+  }
+}
+```
+
+- state value를 overriding 하고 싶은 경우 constructor를 사용한다.
+
+```solidity
+//parent contract Parent1
+contract Parent1{
+  string public name = "Contract Parent1";
+}
+
+//child contract Child1
+contract Child1{
+  consturctor(){
+    name = "Contract Child1";
+  }
+}
+```
+
+- parent contract를 호출할 때 super 키워드를 사용한다.
+
+```solidity
+// parent contract Parent1
+contract Parent1{
+  function foo() public virtual{
+    emit Log("A.foo called");
+  }
+}
+
+//Child contract Child1
+contract Child1 is Parent1{
+  emit Log("B.foo called");
+  super.foo();
+}
+```
+
+
+
+
+
+  
+예제코드
+--------
+### 1. Inheritance
+
+<img src="/images/Inheritance/diagram.png" width="40%" height="70%">
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract A {
+    function foo() public pure virtual returns (string memory) {
+        return "A";
+    }
+}
+
+// Contract를 상속할 때에는 is 키워드를 사용한다.
+contract B is A {
+    // A.foo()함수를 override
+    function foo() public pure virtual override returns (string memory) {
+        return "B";
+    }
+}
+
+contract C is A {
+    // A.foo() 함수를 override
+    function foo() public pure virtual override returns (string memory) {
+        return "C";
+    }
+}
+
+// Contract는 여러 개의 parent contract를 상속받을 수 있다.
+// 다중 상속 받은 contract의 함수 중 같은 이름을 가진 함수가 존재하면
+// 오른쪽에서 왼쪽으로 컨트랙트의 함수를 적용한다.
+
+contract D is B, C {
+    // D.foo() 함수는 "C"를 return한다.
+    // 왜냐하면 C는 foo()함수를 포함하는 가장 오른쪽 parent contract이기 때문이다.
+    function foo() public pure override(B, C) returns (string memory) {
+        return super.foo();
+    }
+}
+
+contract E is C, B {
+    // E.foo() 함수는 "B"를 retur한다.
+    // 왜냐하면 B는 foo()함수를 포함하는 가장 오른쪽 parent contract이기 때문이다.
+    function foo() public pure override(C, B) returns (string memory) {
+        return super.foo();
+    }
+}
+
+// 상속은 가장 상위의 parent 컨트랙트에서 child 컨트랙트 순으로 적어주어야 한다.
+// 즉, 자신의 상위(parent)에 있는 컨트랙트를 먼저 적어주어야 한다.
+// A와 B를 바꾸어서 적으면 컴파일 에러가 발생한다.
+contract F is A, B {
+    function foo() public pure override(A, B) returns (string memory) {
+        return super.foo();
+    }
+}
+
+```
+
+### 2. Shadowing
+
+```solidity
+ // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract A {
+    string public name = "Contract A";
+
+    function getName() public view returns (string memory) {
+        return name;
+    }
+}
+
+// 솔리디티 0.6에서는 Shadowing을 지원하지 않는다.
+
+// 이 컨트랙트의 name은 override 되지 않는다.
+// contract B is A {
+//     string public name = "Contract B";
+// }
+
+contract C is A {
+    // inherited state variable의 올바른 override 방식
+    constructor() {
+        name = "Contract C";
+    }
+
+    // C.getName은 "Contract C"를 return 한다.
+}
+
+```
+
+
+### 3. Calling Parent Contracts
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+// Inheritance 트리는 1번 사진 참고
+
+contract A {
+    // 이것은 event로 함수에서 이벤트를 발생시키고 transaction log에 기록된다.
+    // 이는 함수 호출을 tracing하는데 유용하다.
+    event Log(string message);
+
+    function foo() public virtual {
+        emit Log("A.foo called");
+    }
+
+    function bar() public virtual {
+        emit Log("A.bar called");
+    }
+}
+
+contract B is A {
+    function foo() public virtual override {
+        emit Log("B.foo called");
+        A.foo();
+    }
+
+    function bar() public virtual override {
+        emit Log("B.bar called");
+        super.bar();
+    }
+}
+
+contract C is A {
+    function foo() public virtual override {
+        emit Log("C.foo called");
+        A.foo();
+    }
+
+    function bar() public virtual override {
+        emit Log("C.bar called");
+        super.bar();
+    }
+}
+
+contract D is B, C {
+    // Try:
+    // - D.foo를 호출하고 transaction logs를 확인
+    //   D가 A, B, C를 상속했지만 C와 A만 호출한다.
+    // - D.bar를 호출하고 transaction logs를 확인
+    //   D 는 C를 호출하고, 그 다음엔 B를 호출하고, 마지막으로는 A를 호출한다.
+    //   super이 B와 C에 의해서 두번 호출되었지만 A는 한번만 호출된다.
+
+    function foo() public override(B, C) {
+        super.foo();
+    }
+
+    function bar() public override(B, C) {
+        super.bar();
+    }
+}
+
+```
+
+- 여기서 알 수 있는 사실은 is 키워드 뒤의 parent contract 나열 순서가 중요하다는 것을 알 수 있다.<br/>
+  가장 뒤에 명명된 컨트랙트가 더 가까운 parent가 된다. <br/>
+  즉, D is B,C일 때 D-C-B-A 순의 직선적인 상속 관계가 되는 것을 확인 할 수 있다.
+
+
+<br/>
+<br/>
+
+Remix에서 실습
+---------
+
+1. Remix에서 새로운 Solidity 파일을 생성하고 예제 코드를 복사 붙여넣기 한다.
+2. 예제 코드를 컴파일하고 배포한다. (각 contract에 맞게 deploy한다.)
+3. 아래 함수들이 제대로 동작하는지 확인한다.
+
+
+### Inheritance
+
+<img src="/images/Inheritance/inheritance_d.png" width="100%" height="100%">
+<img src="/images/Inheritance/inheritance_E.png" width="100%" height="100%">
+<img src="/images/Inheritance/inheritance_f.png" width="100%" height="100%">
+
+<br/>
+
+### Shadowing
+<img src="/images/Inheritance/shadowing.png" width="40%" height="70%">
+
+<br/>
+
+### Calling Parent Contract
+- D.foo
+<img src="/images/Inheritance/super_foo.png" width="100%" height="100%">
+
+
+- D.bar
+<img src="/images/Inheritance/super_bar.png" width="100%" height="100%">
+
