@@ -1,0 +1,240 @@
+Library
+=======
+
+목표
+-----
+- Library의 개념을 이해한다.
+- Library의 종류에 대해서 알아보고 Contract와의 차이점을 이해한다.
+- Library의 구조와 시용법에 대해 학습한다.
+- 예제를 통해 Library를 선언해보고 사용하는 방법을 학습한다.
+
+
+개념
+----
+- Library는 반복적으로 사용되는 기능을 모듈화하여 재사용가능하게 하는 코드 구조이다.
+- Library는 contract와 비슷하지만 어떤 state variable도 선언할 수 없고 ether를 전송할 수 없다.
+- Library는 다른 contract에 의해 호출될 수 있는 function을 가진다.
+- Library 함수는 pure 또는 view로 표시된 경우에만 직접 호출할 수 있다.
+- 코드의 재사용성을 높이고 이미 구축된 코드를 사용하여 gas를 절약할 수 있다.
+  
+
+
+
+Library 종류
+-----------
+Library의 배포는 일반 Smart contract의 배포와 다르다. Solidity에는 두가지 타입의 Library가 있다.
+
+- #### Embedded Library <br>
+  Smart contract가 internal 함수만 가지고 있는 Library를 쓴다면, EVM이 해당 library를 별도로 배포할 필요 없이 smart contract에 직접 포함시킨다.
+
+- #### Linked Library
+  Library에 public 또는 external 함수가 포함된 경우, library를 별도로 배포해야 한다.<br>
+  다른 Smart Contract에서 해당 Library를 참조하는 방법이다.<br>
+  이 방식은 Smart Contract와 Library를 독립적으로 배포하고 연결한다.
+
+
+Library 구조
+-----------
+- Library는 `library` 키워드를 사용하여 선언한다.
+- Library 내부에는 `internal 또는 `public`, `external`함수가 포함될 수 있다.
+
+```solidity
+library Library이름{
+    // library 내용
+    function funtcion이름() internal pure {}
+}
+```
+
+Library 사용
+-----------
+- Library를 사용하기 위해서는 import키워드를 이용하여 Library를 선언해 주어야 한다. (Library를 외부 파일에서 불러올 때)
+- Library를 사용하는 방법은 두가지가 있다.
+  - `using for` : 특정 데이터 타입에 대해 Library function을 instance method처럼 사용할 수 있다.
+  - 직접 호출: Library function를 직접 호출할 수도 있다. 일반적인 function 호출과 유사하다.
+```bash
+├─ MathLibrary.sol
+└─ MyContract.sol
+```
+
+```solidity
+import "./MathLibrary.sol";
+
+
+contract MyContract{
+    //using for 사용
+    using MathLibrary for uint256;
+    function addNumbers(uint256 a, uint256 b) public pure returns (uint256){
+        return a.add(b);
+    }
+
+    // 직접 호출 사용
+    function subtractNumbers(uint256 a, uint256 b) public pure returns (uint256){
+        return Mathlibrary.subtract(a,b)
+    }
+}
+```
+
+
+<br>
+
+예제코드
+---------
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+library Math {
+    function sqrt(uint256 y) internal pure returns (uint256 z) {
+        if (y > 3) {
+            z = y;
+            uint256 x = y / 2 + 1;
+            while (x < z) {
+                z = x;
+                x = (y / x + x) / 2;
+            }
+        } else if (y != 0) {
+            z = 1;
+        }
+        // else z = 0 (default value)
+    }
+}
+
+contract TestMath {
+    function testSquareRoot(uint256 x) public pure returns (uint256) {
+        return Math.sqrt(x);
+    }
+}
+
+// index로 element를 제거하고 array를 재구성 하는 Array function
+// elemnet 사이에 간격이 없도록 한다.
+library Array {
+    function remove(uint256[] storage arr, uint256 index) public {
+        // 마지막 요소를 삭제할 위치로 이동
+        require(arr.length > 0, "Can't remove from empty array");
+        arr[index] = arr[arr.length - 1];
+        arr.pop();
+    }
+}
+
+contract TestArray {
+    using Array for uint256[];
+
+    uint256[] public arr;
+
+    function testArrayRemove() public {
+        for (uint256 i = 0; i < 3; i++) {
+            arr.push(i);
+        }
+
+        arr.remove(1);
+
+        assert(arr.length == 2);
+        assert(arr[0] == 0);
+        assert(arr[1] == 2);
+    }
+}
+
+```
+
+<br>
+
+#### Math
+`Math` Library는 숫자의 제곱근을 계산하는 함수를 포함하고 있다.
+
+```solidity
+library Math {
+    function sqrt(uint256 y) internal pure returns (uint256 z) {
+        if (y > 3) {
+            z = y;
+            uint256 x = y / 2 + 1;
+            while (x < z) {
+                z = x;
+                x = (y / x + x) / 2;
+            }
+        } else if (y != 0) {
+            z = 1;
+        }
+        // else z = 0 (default value)
+    }
+}
+```
+- `sqrt` 함수
+  - 입력값 `y`의 제곱근을 계산하여 반환한다.
+  - `y`가 3보다 크면, 반복문을 통해 제곱근을 찾는다.
+  - `y`가 0이 아니면 `z`를 1로 설정한다.
+  - `y`가 0이면 `z`는 0이다. (기본값)
+
+```solidity
+contract TestMath {
+    function testSquareRoot(uint256 x) public pure returns (uint256) {
+        return Math.sqrt(x);
+    }
+}
+```
+- `testSquareRoot` 함수
+  - 해당 함수에서는 직접 호출 방식을 사용하였다.
+ 
+<br>
+
+#### Array
+`Array` Library는 array에서 특정 index의 element를 제거하고, array의 gap을 채우기 위한 함수를 포함하고 있다.
+ 
+```solidity
+library Array {
+    function remove(uint256[] storage arr, uint256 index) public {
+        require(arr.length > 0, "Can't remove from empty array");
+        arr[index] = arr[arr.length - 1];
+        arr.pop();
+    }
+}
+
+```
+- `remove` 함수
+  - 입력된 `arr`에서 특정 `index`의 요소를 제거한다.
+  - array의 마지막 element를 제거할 element의 위치로 이동시키고, array의 마지막 element를 제거한다.
+ 
+```solidity
+contract TestArray {
+    using Array for uint256[];
+
+    uint256[] public arr;
+
+    function testArrayRemove() public {
+        for (uint256 i = 0; i < 3; i++) {
+            arr.push(i);
+        }
+
+        arr.remove(1);
+
+        assert(arr.length == 2);
+        assert(arr[0] == 0);
+        assert(arr[1] == 2);
+    }
+
+    function getAllArrayElements()public view returns (uint256[] memory){
+        return arr;
+    }
+}
+
+```
+
+- `testArrayRemove` 함수
+  - 해당 함수에서는 using for 문법을 사용했다.
+  - `arr`에 0, 1, 2의 세 element를 추가한다.
+  - `arr.remove(1)`을 호출하여 index 1의 element를 제거한다.
+  - array의 길이가 2인지, 첫번째 element가 0인지, 두 번째 elemetn가 2인지 확인하는 `assert`문을 통해 테스트한다.
+ 
+<br>
+
+
+Remix에서 실습
+-----------
+1. Remix에서 새로운 Solidity 파일을 생성하고 예제 코드를 복사 붙여넣기 한다.
+2. TestMath, TestArray contract를 각각 deploy한다.
+3. 아래 함수들이 제대로 동작하는지 확인한다.
+
+<img src="/images/Library/111.png" width="40%" height="70%">
+<img src="/images/Library/2222.png" width="40%" height="70%">
+
+
+
