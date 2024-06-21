@@ -16,12 +16,12 @@
 > Remix: <https://remix.ethereum.org/>
 ### 2. Workspace 생성
 > 1. 왼쪽 상단의 workspaces 클릭 후 Create 클릭 <br><br>
-> <img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/workspaces.png" width="250" height="400"></img><br><br><br>
+> <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/workspaces.png" width="250" height="400"></img><br><br><br>
 > 2. Choose a template을 Blank 선택 Workspace name에 workspace 이름 적기<br><br>
-> <img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/Create%20workspace.png" width="500" height="300"></img><br><br><br>
+> <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/Create%20workspace.png" width="500" height="300"></img><br><br><br>
 3. 모든 폴더와 파일 삭제<br><br>
 4. contracts 폴더와 solidity 파일 생성<br><br>
-> <img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/%E1%84%85%E1%85%A9%E1%86%AF%E1%84%83%E1%85%A5%20%E1%84%89%E1%85%A2%E1%86%BC%E1%84%89%E1%85%A5%E1%86%BC.png" width="250" height="400"></img><br><br><br>
+> <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/%E1%84%85%E1%85%A9%E1%86%AF%E1%84%83%E1%85%A5%20%E1%84%89%E1%85%A2%E1%86%BC%E1%84%89%E1%85%A5%E1%86%BC.png" width="250" height="400"></img><br><br><br>
 
 ## 미션 진행
 
@@ -367,28 +367,28 @@ contract MyToken is ERC721, Ownable {
 
 ### 폴더 구조
 아래와 같은 폴더 구조를 만들어야 합니다. <br><br>
-<img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/%E1%84%91%E1%85%A9%E1%86%AF%E1%84%83%E1%85%A5%E1%84%80%E1%85%AE%E1%84%8C%E1%85%A9.png" width="250" height="450"></img>
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/%E1%84%91%E1%85%A9%E1%86%AF%E1%84%83%E1%85%A5%E1%84%80%E1%85%AE%E1%84%8C%E1%85%A9.png" width="250" height="450"></img>
 
 ### MyToken Mint
 > MyToken contract를 컴파일 후 deploy합니다. 아래와 같이 세팅 후 deploy하면 됩니다.<br><br>
-<img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/%E1%84%91%E1%85%A9%E1%86%AF%E1%84%83%E1%85%A5%E1%84%80%E1%85%AE%E1%84%8C%E1%85%A9.png" width="250" height="450"></img><br><br>
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/myTokenDeploy.png" width="250" height="450"></img><br><br>
 > NFT를 민트합니다. Deployed/Unpinned Contracts에서 deploy한 contract를 클릭합니다. 그 후 아래와 같은 버튼들 중 safeMint 버튼 옆에 주소 적는 빈칸에 본인이 원하는 주소(본인의 주소를 추천합니다)를 넣고 버튼을 클릭하면 됩니다.<br><br>
-<img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/myTokenButton.png" width="250" height="450"></img><br><br>
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/myTokenButton.png" width="250" height="450"></img><br><br>
 
 ### English Auction 실행
 > 1. EnglishAuction contract를 deploy 합니다. 아래 이미지와 같이 만든 후 deploy 버튼을 누르면 됩니다. 이때 _NFT에는 위에서 deploy한 NFT 주소를, _NFTID에는 0(한개밖에 mint 안했기 때문에)을, _STARTINGBID에는 1ETH를 입력하기 위해서 1*10^18(wei 단위)을 넣어줍니다. <br><br>
-<img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/EnglishAuctionDeploy.png" width="250" height="450"></img><br><br>
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/EnglishAuctionDeploy.png" width="250" height="450"></img><br><br>
 > 2. EnglishAuction contract가 IERC721의 transferFrom함수를 사용하기 위해서는 해당 nft의 ID에 대한 approve가 되어 있어야 합니다. MyToken contract의 approve 버튼 옆에 EnglishAuction contract의 주소를 입력 후 클릭합니다.<br><br>
-<img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/MyTokenApprove.png" width="250" height="450"></img><br><br>
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/MyTokenApprove.png" width="250" height="450"></img><br><br>
 > #### Auction 버튼 조작
-> <img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/EnglishAuctionButton.png" width="250" height="450"></img><br><br>
+> <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/EnglishAuctionButton.png" width="250" height="450"></img><br><br>
 > 3. 먼저 auction을 시작하기 위히서 start버튼을 누릅니다. 이제 옥션이 시작한겁니다. 이때 사인하는 주소가 English Auction contract를 deploy한 주소와 동일해야 합니다. <br><br>
 > 4. 파란색 버튼들을 실행해보면 모두 정상 작동하는거를 확인할 수 있습니다. 이때 아직 아무도 bid를 하지 않았기 때문에 이 주소는 비어 있습니다.<br><br>
-<img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/EnglishAuctionBlueButton.png" width="250" height="450"></img><br><br>
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/EnglishAuctionBlueButton.png" width="250" height="450"></img><br><br>
 > 5. 다른 주소로 바꿉니다. <br><br>
-<img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/RemixAddress.png" width="250" height="450"></img><br><br>
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/RemixAddress.png" width="250" height="450"></img><br><br>
 > 6. Value를 2ETH로 바꾼 후 bid 버튼을 누릅니다. contract의 balance가 2ETH로 바뀌고 highestBid와 highestBidder가 바뀐 것을 확인할 수 있습니다.<br><br>
-<img src="https://github.com/Joon2000/English-Auction-Solidity/blob/main/images/bidValue.png" width="250" height="450"></img><br><br>
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/english_auction/bidValue.png" width="250" height="450"></img><br><br>
 > 7. 주소와 bid하는 value를 바꿔가면 옥션을 진행합니다.<br><br>
 > 8. withdraw 함수는 해당 주소의 bid를 contract로부터 돌려받을 수 있습니다. 이때 highestBidder눈 withdraw 할 수 없습니다.<br><br>
 > 10. 7일 이후에 end 함수를 누르면 옥션을 정지하고 highestbid만큼의 ETH가 seller의 주소로 전달됩니다. 
