@@ -1,0 +1,215 @@
+# ABI Encode/Decode 
+
+## ABI encoding/decoding 이란? 
+
+ABI (Application Binary Interface)는 블록체인 기반 스마트 계약 간의 연결을 위한 인터페이스 역할을 합니다. 
+ABI를 통해 고수준 언어를 Ethereum 가상 머신 (EVM)이 이해하고 사용할 수 있는 기계 코드로 변환합니다.  
+이에 솔리디티는 컨트랙트간의 상호작용을 위해 data를 encode, decode할 수 있는 다양한 메서드를 지원합니다. 
+
+## ABI encoding 
+
+ABI encoding을 아래의 솔리디티 메서드를 통해 이해해보도록 합시다.
+
+## 예제 코드
+
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
+
+interface IERC20 {
+    function transfer(address, uint) external;
+}
+
+contract Token {
+    function transfer(address, uint) external {}
+}
+
+// AbiEncode Contract
+contract AbiEncode {
+    function test(address _contract, bytes calldata data) external {
+        (bool ok, ) = _contract.call(data);
+        require(ok, "call failed");
+    }
+
+    function encodeWithSignature(
+        address to,
+        uint amount
+    ) external pure returns (bytes memory) {
+        return abi.encodeWithSignature("transfer(address,uint256)", to, amount);
+    }
+
+    function encodeWithSelector(
+        address to,
+        uint amount
+    ) external pure returns (bytes memory) {
+        return abi.encodeWithSelector(IERC20.transfer.selector, to, amount);
+    }
+
+    function encodeCall(address to, uint amount) external pure returns (bytes memory) {
+        return abi.encodeCall(IERC20.transfer, (to, amount));
+    }
+}
+```
+
+### test() 함수
+
+```solidity
+function test(address _contract, bytes calldata data) external {
+    (bool ok, ) = _contract.call(data);
+    require(ok, "call failed");
+}
+```
+test 함수는 저수준 call 함수를 사용하여 계약을 호출합니다. 인코딩된 데이터와 계약 주소가 매개변수로 제공됩니다. 호출이 실패하면 "call failed" 오류가 발생합니다.
+
+### encodeWithSignature() 함수
+
+```solidity
+function encodeWithSignature(
+    address to,
+    uint amount
+) external pure returns (bytes memory) {
+    return abi.encodeWithSignature("transfer(address,uint256)", to, amount);
+}
+```
+
+encodeWithSignature 함수는 함수 시그니처("transfer(address,uint256)")와 인수를 포함하는 바이트 배열을 생성합니다. 인수는 별도로 제공되고 함수 시그니처는 문자열로 전달됩니다. 이 방법은 사용하기 쉽지만 시그니처 문자열을 잘못 입력하면 오류가 발생할 수 있습니다.
+
+
+### encodeWithSelector() 함수
+
+```solidity
+function encodeWithSelector(
+    address to,
+    uint amount
+) external pure returns (bytes memory) {
+    return abi.encodeWithSelector(IERC20.transfer.selector, to, amount);
+}
+```
+
+encodeWithSelector 함수는 전체 시그니처 대신 함수 선택기를 사용합니다. 함수 선택기는 함수 시그니처의 Keccak-256 해시의 첫 4바이트로, 자주 함수를 참조하는 데 사용됩니다. 인터페이스에 정의된 함수의 선택기는 .selector 속성을 사용하여 쉽게 얻을 수 있습니다.
+
+### encodeCall() 함수
+
+```solidity
+function encodeCall(address to, uint amount) external pure returns (bytes memory) {
+    return abi.encodeCall(IERC20.transfer, (to, amount));
+}
+```
+
+마지막으로, Solidity 0.8.4에서 새롭게 추가된 abi.encodeCall 메소드를 사용하는 encodeCall 함수입니다. 함수를 가리키는 포인터를 통해 인코딩과 Call을 동시에 할 수 있습니다.
+
+## ABI encoding 
+
+Solidity는 encoded data를 decode할 수 있는 메서드를 제공합니다
+
+ABI decoding을 아래의 솔리디티 메서드를 통해 이해해보도록 합시다.
+
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
+
+// AbiDecode Contract
+contract AbiDecode {
+    struct MyStruct {
+        string name;
+        uint[2] nums;
+    }
+
+    function encode(
+        uint x,
+        address addr,
+        uint[] calldata arr,
+        MyStruct calldata myStruct
+    ) external pure returns (bytes memory) {
+        return abi.encode(x, addr, arr, myStruct);
+    }
+
+    function decode(
+        bytes calldata data
+    )
+        external
+        pure
+        returns (uint x, address addr, uint[] memory arr, MyStruct memory myStruct)
+    {
+        (x, addr, arr, myStruct) = abi.decode(data, (uint, address, uint[], MyStruct));
+    }
+}
+```
+
+### encodeCall() 함수
+
+```solidity
+function encodeCall(address to, uint amount) external pure returns (bytes memory) {
+    return abi.encodeCall(IERC20.transfer, (to, amount));
+}
+```
+
+마지막으로, Solidity 0.8.4에서 새롭게 추가된 abi.encodeCall 메소드를 사용하는 encodeCall 함수입니다. 함수를 가리키는 포인터를 통해 인코딩과 Call을 동시에 할 수 있습니다.
+
+### encode() 함수
+
+```solidity
+function encode(
+        uint x,
+        address addr,
+        uint[] calldata arr,
+        MyStruct calldata myStruct
+    ) external pure returns (bytes memory) {
+        return abi.encode(x, addr, arr, myStruct);
+    }
+```
+
+encode 함수는 여러 매개변수 (uint x, address addr, uint[] calldata arr, MyStruct calldata myStruct)를 받아와 abi.encode를 사용하여 인코딩된 바이트 배열 (bytes memory)을 반환합니다.
+
+
+### decode() 함수
+
+```solidity
+function decode(
+    bytes calldata data
+)
+    external
+    pure
+    returns (uint x, address addr, uint[] memory arr, MyStruct memory myStruct)
+{
+    (x, addr, arr, myStruct) = abi.decode(data, (uint, address, uint[], MyStruct));
+}
+```
+
+1. decode 함수는 bytes calldata data 매개변수를 받습니다.  
+
+2. abi.decode를 사용하여 data 바이트 배열을 원래의 구성 요소들 
+   (uint x, address addr, uint[] memory arr, MyStruct memory myStruct)로 언패킹합니다.  
+
+3. abi.decode의 두 번째 인수는 data가 해독되어야 할 유형을 지정하며, 이는 encode 함수에서 사용된 유형들과 일치해야 합니다.  
+
+4. 디코딩 후, 함수는 이러한 구성 요소들을 개별 변수 (x, addr, arr, myStruct)로 반환합니다.
+
+
+## Remix에서 실습
+
+1. [Remix IDE](https://remix.ethereum.org/)에 접속한다.
+2. 새로운 Solidity 파일을 생성하여 예제 코드를 복사하여 붙여넣는다.
+3. 코드를 컴파일하고 배포한다.
+4. 아래 버튼들이 제대로 동작하는지 확인한다.
+
+
+### 1. encodeWithSignature
+
+Token contract의 주소와, 10 을 input으로 입력합니다. ex) 0x358AA13c52544ECCEF6B0ADD0f801012ADAD5eE3, 10
+
+![image](https://github.com/mmingyeomm/EZCryptoExchange/assets/87323564/47b6346b-63e2-4f93-aac9-25fe606583be)
+
+위와 같이 enoding된 데이터를 확인할 수 있습니다. 
+
+### 2. decode
+
+decode하기 위해 데이터들을 인코딩 합니다. encode에 다음과 같이 값을 입력합니다.  
+ex) 1, 0xddaAd340b0f1Ef65169Ae5E41A8b10776a75482d, [1,2,3] , ["name" [1,2] ]
+
+encoded 데이터를 decode에 입력해 decode 된 결과를 확인합니다.
+
+
+![image](https://github.com/mmingyeomm/EZCryptoExchange/assets/87323564/75e7bafb-92db-4fe2-b97b-d5b46ca74d90)
