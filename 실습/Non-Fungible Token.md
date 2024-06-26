@@ -1,0 +1,589 @@
+Non-Fungible Token
+============
+#### ERC-721
+
+목표
+-------
+1. Non-Fungible Token(NFT)와 ERC-721의 개념에 대해서 배운다.
+2. ERC-721표준에 부합하는 스마트 컨트랙트를 배포해본다.
+3. 기본적인 ERC-721 기능과 토큰을 발행(mint)하고 소각(burn)하는 코드를 구현하고 살펴본다.
+
+개념
+-------
+Non-Fungible Token이란 대체 불가능 토큰으로 줄여서 NFT라고 흔히 부른다. 이는 블록체인 기술을 기반으로 한 디지털 자산으로
+각 토큰이 고유한 식별 정보를 가지고 있어, 다른 토큰과 상호 교환이 불가능하다.<br>
+
+즉, 대체 가능한 자산인 비트코인이나 이더리움과 같은 암호화폐는 동일한 가치를 지닌 여러 단위로 나눌 수 있고, 서로 교환이 가능하다.
+반면, NFT는 각 토큰이 고유한 특성을 지니고 있어 독립적인 가치를 지니고 있다.<br>
+
+NFT는 주로 디지털 예술품, 음악, 비디오, 게임 아이템 등 다양한 디지털 콘텐츠의 소유권을 증명하는데 사용된다. 예를 들어, 디지털 예술가가 만든 작품을
+NFT로 발행하면, 그 작품의 소유권은 해당 NFT를 소유한 사람에게 귀속된다. 이는 디지털 콘텐츠의 희소성을 확보하고, 소유권과 거래 내역을 블록체인에
+기록하여 투명성과 신뢰성을 높인다.<br>
+
+먼저, ERC란 Ethereum Request for Comment의 준말로 이더리움 네트워크에서 토큰을 만들 때 따라야하는 프로토콜을 의미한다.
+이더리움 블록체인에서 NFT를 발행할 때에는 주로 ERC-721표준을 따른다. 이는 대체 불가능한 토큰을 발행할 때 사용하는 프로토콜이다.
+(대조적으로 이더리움 암호화폐는 ERC-20 프로토콜을 따른다. 이는 대체 가능한 토큰을 발행할 때 사용하는 프로토콜이라고 생각하면 된다.)
+
+코드 구성
+-------
+### 1. Interface
+- IERC165
+- IERC721
+- IERC721Receiver
+
+### 2. Contracat
+- ERC721
+  - event
+    - Transfer
+    - Approval
+    - ApprovalForAll
+  - variable
+    - _ownerOf
+    - _balanceOf
+    - _approvals
+    - isApprovedForAll
+  - function
+    - supportsInterface
+    - ownerOf
+    - balanceOf
+    - setApprovalForAll
+    - approve
+    - getApproved
+    - _isApprovedOrOwner
+    - transferFrom
+    - safeTransferFrom
+    - _mint
+    - _burn
+- MyNFT
+  - function
+    - mint
+    - burn
+
+
+
+
+미션 진행
+------
+### 1. license와 solidity 컴파일 버전 설정
+> license: MIT
+> 컴파일 버전: ^0.8.24
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+```
+
+### 2. IERC-165 interface
+> IERC165는 해당 컨트랙트가 Interface를 지원하는지의 여부를 판단하기 위한 인터페이스 이다.
+> 따라서 IERC165에서는 supportsInterface함수를 구현한다.
+
+```solidity
+interface IERC165 {
+    function supportsInterface(bytes4 interfaceID)
+        external
+        view
+        returns (bool);
+}
+```
+
+### 3. IERC-721 interface
+> IERC721은 NFT의 소유권, 전송 및 관리 등의 관련된 고유의 기능을 정의하는 인터페이스이다.
+- balanceOf: 특정 주소의 토큰 개수를 반환하는 함수
+- ownerOf: 특정 토큰의 소유자 주소를 반환하는 함수
+- transferFrom: 토큰을 전송하는 함수 (안전성 검사는 없고 간단한 전송만 한다.)
+- safeTransferFrom
+  - 버전1(calldata를 받지 않는 safeTransferFrom): 토큰을 전송하고 추가적인 안전성 검사를 수행하는 함수
+  - 버전2(calldata를 받는 safeTransferFrom): 토큰과 추가적인 정보를 전송하고 안전성 검사를 수행하는 함수
+- approve: 토큰의 소유자가 특정 주소(spender)에게 전송 권한을 부여하는 함수
+- getApproved: 토큰 존재여부를 확인하고 특정 토큰 ID에 대해 승인된 주소를 환하는 함수
+- setApprovalForAll: 특정 operator가 소유자의 모든 토큰에 대해 전송권한을 가질 수 있도록 승인하거나 승인 취소하는 함수
+- isApproveForAll: 특정 operator가 소유자의 모든 토큰에 대해 전송 권한을 가질 수 있는지 확인하는 함수
+
+```solidity
+interface IERC721 is IERC165 {
+    function balanceOf(address owner) external view returns (uint256 balance);
+    function ownerOf(uint256 tokenId) external view returns (address owner);
+    function safeTransferFrom(address from, address to, uint256 tokenId)
+        external;
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes calldata data
+    ) external;
+    function transferFrom(address from, address to, uint256 tokenId) external;
+    function approve(address to, uint256 tokenId) external;
+    function getApproved(uint256 tokenId)
+        external
+        view
+        returns (address operator);
+    function setApprovalForAll(address operator, bool _approved) external;
+    function isApprovedForAll(address owner, address operator)
+        external
+        view
+        returns (bool);
+}
+```
+
+### 4. IERC721Reciver interface
+> ERC721 토큰이 스마트 컨트랙트로 안전하게 전송될 수 있도록 보장하는 인터페이스이다.
+
+```solidity
+interface IERC721Receiver {
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4);
+}
+```
+
+### 5. ERC721 컨트랙트
+> ERC721은 IERC721 인터페이스를 상속받고 있으므로 IERC721의 함수를 반드시 구현해야 한다.
+- event
+  - Transfer<br>
+    블록체인 상에서 토큰 소유권이 이전될 때 발생하는 이벤트이다.<br>
+    `event Transfer(address indexed from, address indexed to, uint256 indexed id);`
+  - Approval<br>
+    특정 토큰 ID에 대해 전송 권한이 승인될 때 발생하는 이벤트이다.<br>
+    `event Approval(address indexed owner, address indexed spender, uint256 indexed id);`
+  - ApprovalForAll
+    특정 operator가 소유자의 모든 토큰에 대해 전송 권한을 승인하거나 취소할 때 발생하는 이벤트이다.
+    `event ApprovalForAll(address indexed owner, address indexed operator, bool approved);`
+
+- mapping
+  - `mapping(uint256 => address) internal _ownerOf;`: tokenID와 소유자의 address를 mapping
+  - `mapping(address => uint256) internal _balanceOf;`: 소유자의 주소와 토큰의 개수를 mapping
+  - `mapping(uint256 => address) internal _approvals;`: tokenID와 승인된 주소를 mapping
+  - `mapping(address => mapping(address => bool)) public isApprovedForAll;`: 특정 소유자가 특정 operator에게 모든 토큰에 대한 전송권한을 부여했는지 여부를 mapping
+ 
+- function
+  - supportsinterface
+    IERC721과 IERC165 인터페이스가 구현되었는지 확인한다.
+  ```solidity
+  function supportsInterface(bytes4 interfaceId)
+        external
+        pure
+        returns (bool)
+    {
+        return interfaceId == type(IERC721).interfaceId
+            || interfaceId == type(IERC165).interfaceId;
+    }
+  ```
+
+- ownerOf
+  require문에서 소유자가 존재하지 않으면 에러메시지를 반환한다.
+  ```solidity
+  function ownerOf(uint256 id) external view returns (address owner) {
+    owner = _ownerOf[id];
+    require(owner != address(0), "token doesn't exist");
+  }
+  ```
+- balanceOf
+  require문에서 소유자가 존재하지 않으면 에러메시지를 반환하고, 존재하면 소유자의 balance를 반환한다.
+  ```solidity
+  function balanceOf(address owner) external view returns (uint256) {
+    require(owner != address(0), "owner = zero address");
+    return _balanceOf[owner];
+  }
+  ```
+- setApprovalForAll
+  - `isApprovedForAll`은 소유자 주소와 operator 주소 간의 승인 상태를 저장한다.
+  - `msg.sender`는 이 함수를 호출한 주소이며, 이는 현재 토큰의 소유자를 나타낸다.
+  - `operator`는 소유자가 전송 권한을 부여하거나 취소할 대상 주소이다.
+  - `approved` 값에 따라 전송 권한을 부여하거나 취소한다.
+  - `ApprovalForAll` 이벤트는 함수가 호출될 때 발생하며, 승인 상태가 변경되었음을 알린다.
+  ```solidity
+  function setApprovalForAll(address operator, bool approved) external {
+    isApprovedForAll[msg.sender][operator] = approved;
+    emit ApprovalForAll(msg.sender, operator, approved);
+  }
+  ```
+    
+- approve
+  require문에서 함수 호출자가 토큰의 소유자이거나, 소유자로부터 모든 토큰에 대한 전송 권한을 부여받았는지 확인한다.
+  ```solidity
+  function approve(address spender, uint256 id) external {
+        address owner = _ownerOf[id];
+        require(
+            msg.sender == owner || isApprovedForAll[owner][msg.sender],
+            "not authorized"
+        );
+
+        _approvals[id] = spender;
+
+        emit Approval(owner, spender, id);
+    }
+  ```
+
+- getapproved
+  require문에서 토큰이 존재하는지 확인한다. 존재하지 않다면 에러 메시지가 반환된다.
+  ```solidity
+  function getApproved(uint256 id) external view returns (address) {
+    require(_ownerOf[id] != address(0), "token doesn't exist");
+    return _approvals[id];
+  }
+  ```
+- _isApprovedOrOwner
+  특정 주소(`spender`)가 주어진 토큰 ID(`id`)에 대해 전송 권한을 가지고 있는지 확인하는 내부 함수이다.<br>
+  이 함수는 토큰 전송이 승인된 주소나 소유자에 의해서만 이루어지도록 보장하는데 사용된다.
+  - `spender == owener` : `spender`가 토큰의 소유자인지 확인한다. 소유자는 자신의 토큰을 언제든지 전송할 수 있다.
+  - `isApprovedForAll[owner][spender]` : `spender`가 소유자의 모든 토큰에 대해 전송 권한을 부여받았는지 확인한다. 소유자는 특정 operator에게 자신의 모든 토큰에 대한 전송 권한을 부여할 수 있다.
+  - `spender == _approvals[id]` : `spender`가 특정 토큰 ID에 대해 승인된 주소인지 확인한다.
+  ```solidity
+  function _isApprovedOrOwner(address owner, address spender, uint256 id)
+        internal
+        view
+        returns (bool)
+    {
+        return (
+            spender == owner || isApprovedForAll[owner][spender]
+                || spender == _approvals[id]
+        );
+    }
+  ```
+
+- transferFrom
+  특정 토큰 ID(`id`)를 한 주소(`from`)에서 다른 주소(`to`)로 전송하는 기능을 제공한다. 이 함수는 소유자, 승인된 주소, 또는 모든 토큰에 대한 전송 권한을 부여받은 operator만이 호출할 수 있다.
+  - `require(from == _owverOf[id], "from != owner");`: `from` 주소가 해당 토큰의 실제 소유자인지 확인한다.
+  - `require(to != address(0), "transfer to zero address");` : `to`주소가 유효한 주소인지 확인한다.
+  - `require(_isApprovedOrOwner(from, msg.sender, id), "not authorized");`: `msg.sender`가 해당 토큰을 전송할 권한이 있는지 확인한다.
+  - 토큰전송
+    ```solidity
+    _balanceOf[from]--;
+    _balanceOf[to]++;
+    _ownerOf[id] = to;
+    ```
+    - `from` 주소의 토큰 수를 감소시키고, `to` 주소의 토큰 수를 증가시킨다.
+    - 토큰의 소유자를 `from`에서 `to`로 변경한다.
+  - `delete _approvals[id];`: 해당 토큰 ID에 대한 승인된 주소를 삭제한다. 이전 승인된 주소가 더 이상 해당 토큰을 전송할 수 없도록 한다.
+  - `emit Transfer(from, to, id);` : `Transfer` 이벤트를 발생시켜, 토큰 전송이 이루어졌음을 블록체인에 기록한다.
+  ```solidity
+      function transferFrom(address from, address to, uint256 id) public {
+        require(from == _ownerOf[id], "from != owner");
+        require(to != address(0), "transfer to zero address");
+
+        require(_isApprovedOrOwner(from, msg.sender, id), "not authorized");
+
+        _balanceOf[from]--;
+        _balanceOf[to]++;
+        _ownerOf[id] = to;
+
+        delete _approvals[id];
+
+        emit Transfer(from, to, id);
+    }
+  ```
+
+- safeTransferFrom (첫번째 버전)
+  이 함수는 기본적으로 `transferFrom` 함수를 호출하여 토큰을 전송한 후, 수신자가 컨트랙트인 경우 `IERC721Receiver`
+  인터페이스를 구현했는지 확인한다. 이를 통해 토큰이 안전하게 수신될 수 있도록 보장한다.
+  - `transferFrom(from, to, id)`: 이 함수는 소유자 확인, 전송 권한 확인, 토큰 전송 등을 한다.
+  - 수신자 확인
+    ```solidity
+    require(
+    to.code.length == 0
+        || IERC721Receiver(to).onERC721Received(msg.sender, from, id, "")
+            == IERC721Receiver.onERC721Received.selector,
+    "unsafe recipient"
+    );
+    ```
+    - `to.code.length`를 통해 `to`가 컨트랙트인지 확인한다. (일반 사용자 주소(EOA)는 코드가 없으므로 0, 컨트랙트 주소는 코드가 있으므로 0이 아니다.)
+    - `to`가 컨트랙트인 경우, `IERC721Receiver` 인터페이스의 `onERC721Received`함수를 호출하여 컨트랙트가 ERC-721 토큰을 받을 수 있는지 확인한다.
+    - `onERC721Received` 함수가 올바른 값을 반환하지 않으면 트랜잭션이 실패하고 에러 메시지를 반환한다.
+   
+  ```solidity
+  function safeTransferFrom(address from, address to, uint256 id) external {
+        transferFrom(from, to, id);
+
+        require(
+            to.code.length == 0
+                || IERC721Receiver(to).onERC721Received(msg.sender, from, id, "")
+                    == IERC721Receiver.onERC721Received.selector,
+            "unsafe recipient"
+        );
+    }
+  ```
+
+
+- safeTransferFrom (두번째 버전)
+  첫번째 버전과의 차이점은 추가 데이터를 함께 전송할 수 있도록 하는 함수이다.
+  ```solidity
+  function safeTransferFrom(
+    address from,
+    address to,
+    uint256 id,
+    bytes calldata data
+  ) external {
+    transferFrom(from, to, id);
+
+    require(
+        to.code.length == 0
+            || IERC721Receiver(to).onERC721Received(msg.sender, from, id, data)
+                == IERC721Receiver.onERC721Received.selector,
+        "unsafe recipient"
+    );
+  }
+
+  ```
+
+
+- _mint
+  이 함수는 새로운 ERC-721 토큰을 생성하여 특정 주소(`to`)로 발행하는 내부 함수이다. 토큰의 소유권을 초기 설정하고, 해당 주소로 토큰을 발행하는 작업을 한다.
+  - `require(to != address(0), "mint to zero address");` : `to` 주소가 주소 `0`인지 확인한다. 주소 `0`은 유효하지 않은 주소로 간주되며, 토큰을 잃어버리게 되는 것을 방지한다.
+  - `require(_ownerOf[id] == address(0), "already minted");` : 주어진 토큰 ID가 이미 발행되었는지 확인한다. 토큰 ID가 이미 존재하면 중복 발행을 방지한다.
+  - 토큰발행
+    ```solidity
+    _balanceOf[to]++;
+    _ownerOf[id] = to;
+    ```
+    - `to` 주소의 토큰 수를 증가시킨다.
+    - 해당 토큰 ID의 소유자를 `to`주소로 설정한다.
+  - `emit Transfer(address(0), to, id);` : `Transfer` 이벤트를 발생시켜 새로운 토큰이 생성되었음을 블록체인에 기록한다. `from` 주소가 `address(0)` 인 경우, 새로운 토큰이 발행되었음을 나타낸다.
+
+
+- burn
+  이 함수는 특정 토큰 ID(`id`)를 소각(burn)하는 내부 함수이다. 토큰을 영구적으로 제거하고, 해당 토큰에 대한 모든 소유권과 승인정보를 삭제한다. 토큰 소각은 토큰의 소유자가 더 이상 그 토큰을 사용하거나 소유할 수 없도록 하는 과정이다.
+  - 소유자 확인
+    ```solidity
+    address owner = _ownerOf[id];
+    require(owner != address(0), "not minted");
+    ```
+    - `_ownerOf` mapping을 사용하여 주어진 토큰 ID의 소유자를 조회한다.
+    - 소유자가 주소 `0`인 경우, 해당 토큰은 발행되지 않았거나 이미 소각된 상태이므로 트랜잭션이 실패한다.
+  - `_balaceOf[owner] -= 1;` : 소유자의 토큰 수를 1 감소시킨다.
+  - 토큰 소유권 및 승인 정보 삭제
+    ```solidity
+    delete _ownerOf[id];
+    delete _approvals[id];
+    ```
+    - `_ownerOf` mapping에서 해당 토큰 ID의 소유권 정보를 삭제한다.
+    - `_approvals` mapping에서 해당 토큰 ID의 승인 정보를 삭제한다.
+  - `emit Transfer(owner, address(0), id);`: `Transfer` 이벤트를 발생시켜 해당 토큰이 소각되었음을 블록체인에 기록한다. `to` 주소가 `address(0)`인 경우, 토큰이 소각되었음을 나타낸다.
+
+
+전체코드
+-------
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+interface IERC165 {
+    function supportsInterface(bytes4 interfaceID)
+        external
+        view
+        returns (bool);
+}
+
+interface IERC721 is IERC165 {
+    function balanceOf(address owner) external view returns (uint256 balance);
+    function ownerOf(uint256 tokenId) external view returns (address owner);
+    function safeTransferFrom(address from, address to, uint256 tokenId)
+        external;
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes calldata data
+    ) external;
+    function transferFrom(address from, address to, uint256 tokenId) external;
+    function approve(address to, uint256 tokenId) external;
+    function getApproved(uint256 tokenId)
+        external
+        view
+        returns (address operator);
+    function setApprovalForAll(address operator, bool _approved) external;
+    function isApprovedForAll(address owner, address operator)
+        external
+        view
+        returns (bool);
+}
+
+interface IERC721Receiver {
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4);
+}
+
+contract ERC721 is IERC721 {
+    event Transfer(
+        address indexed from, address indexed to, uint256 indexed id
+    );
+    event Approval(
+        address indexed owner, address indexed spender, uint256 indexed id
+    );
+    event ApprovalForAll(
+        address indexed owner, address indexed operator, bool approved
+    );
+
+    // Mapping from token ID to owner address
+    mapping(uint256 => address) internal _ownerOf;
+
+    // Mapping owner address to token count
+    mapping(address => uint256) internal _balanceOf;
+
+    // Mapping from token ID to approved address
+    mapping(uint256 => address) internal _approvals;
+
+    // Mapping from owner to operator approvals
+    mapping(address => mapping(address => bool)) public isApprovedForAll;
+
+    function supportsInterface(bytes4 interfaceId)
+        external
+        pure
+        returns (bool)
+    {
+        return interfaceId == type(IERC721).interfaceId
+            || interfaceId == type(IERC165).interfaceId;
+    }
+
+    function ownerOf(uint256 id) external view returns (address owner) {
+        owner = _ownerOf[id];
+        require(owner != address(0), "token doesn't exist");
+    }
+
+    function balanceOf(address owner) external view returns (uint256) {
+        require(owner != address(0), "owner = zero address");
+        return _balanceOf[owner];
+    }
+
+    function setApprovalForAll(address operator, bool approved) external {
+        isApprovedForAll[msg.sender][operator] = approved;
+        emit ApprovalForAll(msg.sender, operator, approved);
+    }
+
+    function approve(address spender, uint256 id) external {
+        address owner = _ownerOf[id];
+        require(
+            msg.sender == owner || isApprovedForAll[owner][msg.sender],
+            "not authorized"
+        );
+
+        _approvals[id] = spender;
+
+        emit Approval(owner, spender, id);
+    }
+
+    function getApproved(uint256 id) external view returns (address) {
+        require(_ownerOf[id] != address(0), "token doesn't exist");
+        return _approvals[id];
+    }
+
+    function _isApprovedOrOwner(address owner, address spender, uint256 id)
+        internal
+        view
+        returns (bool)
+    {
+        return (
+            spender == owner || isApprovedForAll[owner][spender]
+                || spender == _approvals[id]
+        );
+    }
+
+    function transferFrom(address from, address to, uint256 id) public {
+        require(from == _ownerOf[id], "from != owner");
+        require(to != address(0), "transfer to zero address");
+
+        require(_isApprovedOrOwner(from, msg.sender, id), "not authorized");
+
+        _balanceOf[from]--;
+        _balanceOf[to]++;
+        _ownerOf[id] = to;
+
+        delete _approvals[id];
+
+        emit Transfer(from, to, id);
+    }
+
+    function safeTransferFrom(address from, address to, uint256 id) external {
+        transferFrom(from, to, id);
+
+        require(
+            to.code.length == 0
+                || IERC721Receiver(to).onERC721Received(msg.sender, from, id, "")
+                    == IERC721Receiver.onERC721Received.selector,
+            "unsafe recipient"
+        );
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        bytes calldata data
+    ) external {
+        transferFrom(from, to, id);
+
+        require(
+            to.code.length == 0
+                || IERC721Receiver(to).onERC721Received(msg.sender, from, id, data)
+                    == IERC721Receiver.onERC721Received.selector,
+            "unsafe recipient"
+        );
+    }
+
+    function _mint(address to, uint256 id) internal {
+        require(to != address(0), "mint to zero address");
+        require(_ownerOf[id] == address(0), "already minted");
+
+        _balanceOf[to]++;
+        _ownerOf[id] = to;
+
+        emit Transfer(address(0), to, id);
+    }
+
+    function _burn(uint256 id) internal {
+        address owner = _ownerOf[id];
+        require(owner != address(0), "not minted");
+
+        _balanceOf[owner] -= 1;
+
+        delete _ownerOf[id];
+        delete _approvals[id];
+
+        emit Transfer(owner, address(0), id);
+    }
+}
+
+contract MyNFT is ERC721 {
+    function mint(address to, uint256 id) external {
+        _mint(to, id);
+    }
+
+    function burn(uint256 id) external {
+        require(msg.sender == _ownerOf[id], "not owner");
+        _burn(id);
+    }
+}
+
+```
+
+#### Open in [Remix](https://remix.ethereum.org)
+
+실행
+------
+1. MyNFT.sol 파일을 생성하고 전체 코드를 붙여넣고 컴파일을 한다.
+2. 컨트랙트에서 MyNFT.sol을 선택하고 deploy 한다. <br>
+   <img src="/images/NFT/1.png" width="50%" height="100%">
+3. NFT를 mint하기 위해서 mint 함수의 `to` 필드에 ACCOUNT(0x5B3...)를 복사하여 붙여넣고, `id`필드에 1을 넣는다.<br>
+   <img src="/images/NFT/2.png" width="50%" height="100%">
+4. balanceOf의 `owner`필드에 ACCOUNT(0x5B3...)을 넣어보면 토큰 소유자의 토큰 보유 개수가 출력된다.<br>
+   <img src="/images/NFT/3.png" width="50%" height="100%">
+5. ownerOf의 `id`필드에 1을 넣어보면 소유자의 주소가 출력된다. 왜냐하면 토큰 id 1을 (0x5B3...)에게 mint하여 주었기 때문이다.<br>
+   <img src="/images/NFT/4.png" width="50%" height="100%">
+6. 이제 이 토큰을 다른 주소로 전송하기 위해서 ACCOUNT필드에서 다른 ACCOUNT(0xAb8...)을 선택하여 복사해준다.<br>
+   <img src="/images/NFT/5.png" width="50%" height="100%">
+7. 복사한 주소를 transferFrom의 `to`필드에 붙여넣고, `from`필드에는 기존의 ACCOUNT(0x5B3...)을 넣어주고, `id`필드에는 1을 넣어준다.
+   ACCOUNT 필드에서 기존의 주소(0x5B3...)을 선택해주고 transferFrom함수를 transcat해준다.<br>
+   <img src="/images/NFT/6.png" width="50%" height="100%">
+8. ownerOf의 `id`필드에서 1을 넣고 transact를 하면 토큰 소유자가 변경된 것을 확인할 수 있다.<br>
+   <img src="/images/NFT/7.png" width="50%" height="100%">
+9. ACCOUNT필드에서 현재 토큰 소유자(0xAb8...)의 주소를 선택해주고 burn의 id필드에 1을 넣고 transact를 한다.<br>
+   <img src="/images/NFT/8.png" width="50%" height="100%">
+10. ownerOf의 `id`필드에 1을 넣고 transact를 하면 "token doesn't exist"라는 오류메시지가 뜬다. 이는 토큰이 성공적으로 burn되었다는 것을 의미한다.<br>
+    <img src="/images/NFT/9.png" width="100%" height="100%">
+    
