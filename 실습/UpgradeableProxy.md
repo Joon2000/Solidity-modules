@@ -636,26 +636,57 @@ contract TestSlot {
 
 ## 실행
 
-토큰이 없을 경우 아래 ERC-721 smart contract를 사용하세요
-```solidity
-// SPDX-License-Identifier: MIT
-// Compatible with OpenZeppelin Contracts ^5.0.0
-pragma solidity ^0.8.20;
+### 폴더 구조
+아래와 같은 폴더 구조를 만들어야 합니다.  
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/d485f711-84cc-4a9b-bacb-66e45e621240)  
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MyToken is ERC721, Ownable {
-    uint256 private _nextTokenId;
+### 컨트랙트 배포
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/d485f711-84cc-4a9b-bacb-66e45e621240)
 
-    constructor()
-        ERC721("MyToken", "MTK")
-        Ownable(msg.sender)
-    {}
+>1. CounterV1, CounterV2, Proxy, ProxyAdmin 을 차례로 배포한다.  
+    배포할 컨트랙트는 Deploy 버튼 위에 CONTRACT 메뉴를 통해 선택할 수 있다.  
 
-    function safeMint(address to) public onlyOwner {
-        uint256 tokenId = _nextTokenId++;
-        _safeMint(to, tokenId);
-    }
-}
-```
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/f2998ba1-6fdb-4e96-a0b4-1287777b4ff5)
+
+>2. Proxy 컨트랙트 선택 후, upgradeTo에 CounterV1컨트랙트의 주소를 입력한다.  
+
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/d6a2aa01-521d-47b3-9d25-0be9428d9066)
+
+>3. Implementation 버튼을 누르고 컨트랙트 log의 decoded output을 통해 CounterV1을 ProxyContract가 적용하는 것을 확인할 수 있다.  
+
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/803d2ee6-da00-472f-8195-3aaefc1f8a71)
+
+>4. Proxy 컨트랙트 선택 후, changeAdmin에 ProxyAdmin 컨트랙트 address를 입력한다.  
+
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/f870c386-6d07-47b1-b586-5c9868f5af2c)
+
+>5. ProxyAdmin 컨트랙트에 getProxyAdmin, getProxyImplementation에 Proxy 컨트랙트의 주소를 입력하여 결과를 확인한다.
+
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/bfc45371-96b0-4b81-b4b4-16d30cb328b1)
+
+>6. At Address에 CounterV1의 주소를 입력하여, Proxy 컨트랙트를 통해 CounterV1을 호출할 수 있다.  
+
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/ed0ab94e-3a6f-427f-8e79-b117b711baca)
+
+>7. inc버튼을 눌러 Proxy 컨트랙트를 통해 호출된 CounterV1 컨트랙트가 동작하는 것을 확인할 수 있다. inc 버튼을 누르고 count를 확인한다.  
+
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/de493c23-e21f-4265-b657-ea44db8ce1d7)
+
+>8. At Address에 V2의 주소를 입력하여, Proxy 컨트랙트를 통해 V2을 호출할 수 있다.  
+
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/bd360506-4f26-4bad-b0f2-fe14facbf210)
+
+>9. 호출된 V2 컨트랙트에서 dec 함수를 실행시키면 다음과 같이 오류가 나는 것을 확인할 수 있다.  
+
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/c2b4ce67-150c-4207-b363-2c1e796ff6c6)
+    **Proxy 컨트랙트에서 CounterV1을 implementation으로 선택하였기 때문에, CounterV2의 dec가 실행이 안되는 것이다.**  
+
+>10. ProxyAdmin에서 changeProxy에 CounterV2의 주소를 입력한다.  
+
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/c8cf1390-f27d-4fce-b9c1-9250d9562683)  
+
+>11. 아까와 마찬가지로 At Address에 Proxy 주소를 입력하여 Proxy 컨트랙트를 통해 CounterV2를 호출한다.
+>12. CounterV2의 dec 함수가 잘 실행되는 것을 확인한다. 
+ 
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/a7170496-dc70-4da3-ba11-47dc28939210)
