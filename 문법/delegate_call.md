@@ -1,0 +1,107 @@
+# If/Else
+
+## 목표
+- Solidity의 delegate call에 대해서 배운다.
+- Remix에서 state 변화를 확인한다. 
+- 작성한 예제코드 testnet에 배포한다. 
+
+## delegate call은 무엇인가? 
+
+delegatecall은 이더리움 스마트 컨트랙트에서 하나의 컨트랙트가 다른 계약의 코드를 자신의 컨텍스트에서 실행하도록 한다. 이는 **코드 재사용과 업그레이드 가능한 스마트 컨트랙트 패턴을 구현할 때 유용하다.**
+
+코드 재사용과 업그레이드 가능한 스마트 컨트랙트 패턴을 구현할 때 유용하다. 는 것이 어떤 의미를 갖는지 예시를 통해 알아보도록 하자. 
+
+컨트랙트 A,B를 통해 구현된 디앱이 있고, 컨트랙트 B에는 디앱의 핵심 비즈니스 로직이 들어있다고 가정하자.  
+컨트랙트 A를 통해 B를 호출한다고 했을 때, call을 이용하여 B를 호출할 경우, 코드는 B에서 실행되고, State정보는 컨트랙트 B에 저장된다.  
+그러나, 회사 약관이나 정책등에 변경이 생겨서 컨트랙트 B의 로직을 변경할 필요가 생기는 일이 있을 것이다. 
+
+스마트 컨트랙트는 불변이므로, 컨트랙트 B를 사용중단하고 새로 작성된 컨트랙트 C를 A를 통해 호출해야 될 것이다.  
+이때, B에 저장되어 있는 State 정보를 전부 C에 옮겨야 되는 일이 생길 것이다. 로직이 변경될 때마다 데이터를 전부 옮기는 일은 매우 번거롭고 데이터를 옮기는 과정에서 착오가 생길 가능성도 있다.  
+
+이러한 문제를 해결하기 위해 나온 것이 delegate call이다. 
+
+delegate call은 A를 통해 B를 호출할 때, 코드가  B대신 A컨트랙트에서 실행되도록 한다. 코드 실행 뿐만 아니라 State정보도 A에 기록되므로, 
+따라서, B를 사용 중단하고 C를 사용한다고 하였을 때, State 정보를 이전할 필요 없이 delegate call하는 대상만 바꾸어 주면 되는 것이다. 
+
+예시를 통해 delegate call에 대해 알아보자.
+
+## 예제 코드
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+// NOTE: Deploy this contract first
+contract B {
+    // NOTE: storage layout must be the same as contract A
+    uint256 public num;
+    address public sender;
+    uint256 public value;
+
+    function setVars(uint256 _num) public payable {
+        num = _num;
+        sender = msg.sender;
+        value = msg.value;
+    }
+}
+
+contract A {
+    uint256 public num;
+    address public sender;
+    uint256 public value;
+
+    function setVars(address _contract, uint256 _num) public payable {
+        // A's storage is set, B is not modified.
+        (bool success, bytes memory data) = _contract.delegatecall(
+            abi.encodeWithSignature("setVars(uint256)", _num)
+        );
+    }
+}
+
+```
+
+### 컨트랙트 B 
+``` solidity
+contract B {
+    // NOTE: storage layout must be the same as contract A
+    uint256 public num;
+    address public sender;
+    uint256 public value;
+
+    function setVars(uint256 _num) public payable {
+        num = _num;
+        sender = msg.sender;
+        value = msg.value;
+    }
+}
+```
+컨트랙트 A에 의하여 호출될 컨트랙트 B를 정의한다.  
+
+### 컨트랙트 A
+```solidity
+contract A {
+    uint256 public num;
+    address public sender;
+    uint256 public value;
+
+    function setVars(address _contract, uint256 _num) public payable {
+        (bool success, bytes memory data) = _contract.delegatecall(
+            abi.encodeWithSignature("setVars(uint256)", _num)
+        );
+    }
+}
+```
+delegatecall을 통해 컨트랙트 B의 setVars함수를 호출한다.  
+**주의점!!** storage의 형식이 컨트랙트 A와 B가 동일해야 한다.  
+ex)   uint256 public num;  
+      address public sender;  
+      uint256 public value;  
+
+## Remix에서 실습
+1. Remix에서 새로운 solidity 파일 생성해서 예제 코드를 복사 붙여넣기 한.
+2. 예제 코드를 compile 후 deploy한다.
+3. 아래 버튼들이 제대로 동작하는지 확인한다.
+
+  
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/if-else/If%3Aelse%20button.png" width="250px" height="300px" title="if/else" alt="if/else"></img><br/>
+
+각각 조건에 따라 1, 2 를 반환한다.
