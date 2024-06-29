@@ -3,12 +3,9 @@
 #### Proxy Contract를 이용한 Upgradable Contract 제작 실습
 
 ## 목표
-1. NFT 판매자가 이 계약을 배포합니다.
-2. 경매는 7일 동안 진행됩니다.
-3. 참가자들은 현재 최고 입찰자보다 많은 ETH를 입금함으로써 입찰할 수 있습니다.
-4. 최고 입찰자가 아닌 모든 입찰자는 자신의 입찰금을 철회할 수 있습니다.
-5. 옥션 종료 후 최고 입찰자가 NFT의 새로운 소유자가 됩니다.
-6. 판매자는 최고 입찰가의 ETH를 받습니다.
+1. Proxy Contract의 개념에 대해 배운다. 
+2. Proxy Contract의 구현 방식을 비교해보며 이해한다. 
+3. Proxy Contract의 Implementation을 바꾸어 본다. 
 
 ## Remix 세팅
 
