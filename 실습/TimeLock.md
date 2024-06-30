@@ -1,0 +1,425 @@
+TimeLock
+=========
+
+TimeLock Contract 제작 실습
+
+목표
+-----
+1. TimeLock에 대한 개념을 이해한다.
+2. TimeLock 시스템을 contract로 직접 구현해 본다.
+
+
+개념
+--------
+TimeLock은 일정 시간이 지난 후에 트랜잭션이 실행되도록 하는 contract이다.<br>
+예를 들어서 일정 기간동안 자산을 잠가 두었다가 지정된 시간이 지난 후에만 자산을 사용할 수 있도록 한다.<br>
+TimeLock은 보통 DAO에서 사용된다.
+
+
+Remix세팅
+---------
+### 1. Remix 접속
+> Remix: <https://remix.ethereum.org/>
+
+### 2. Workspace 생성
+> 1. 왼쪽 상단의 workspaces 클릭 후 Create 클릭
+<img src="/images/Timelock/1.png" width="40%" height="70%">
+> 2. choose a template을 Blank 선택 Workspace name에 workspace 이름 적기
+<img src="/images/Timelock/2.png" width="40%" height="70%">
+> 3. 모든 폴더와 파일 삭제
+> 4. contracts 폴더와 solidity 파일 생성
+<img src="/images/Timelock/3.png" width="40%" height="70%">
+
+미션 진행
+-------
+### 1. lisence와 solidity 컴파일 버전 설정
+> lisence: MIT
+> 컴파일 버전: ^0.8.24
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+```
+### 2. TimeLock contract
+
+> 1. error
+> - `NotOwnerError`: 소유자가 아닌 사람이 소유자 전용 함수를 호출했을 때 발생한다.
+> - `AlreadyQueuedError`: 이미 queue에 등록된 트랜잭션 ID(txId)를 queue에 등록하려고 할 때 발생한다.
+> - `TimestampNotInRangeError`: 제공된 타임스탬프가 허용된 범위(현재 블록 타임스탬프 + MIN_DELAY와 현재 블록 타임스탬프 + MAX_DELAY 사이) 내에 있지 않을 때 발생한다.
+> - `NotQueuedError`: 큐에 없는 트랜잭션 ID(txId)를 취소하거나 실행하려고 할 때 발생한다.
+> - `TimestampNotPassedError`: 트랜잭션을 실행하려고 할 때 아직 타임스탬프가 지나지 않았을 때 발생한다.
+> - `TimestampExpiredError`: 트랜잭션을 실행하려고 할 때 타임스탬프가 만료되었을 때 발생한다.
+> - `TxFailedError`: 트랜잭션이 실패했을 때 발생한다.
+
+```solidity
+error NotOwnerError();
+error AlreadyQueuedError(bytes32 txId);
+error TimestampNotInRangeError(uint256 blockTimestamp, uint256 timestamp);
+error NotQueuedError(bytes32 txId);
+error TimestampNotPassedError(uint256 blockTimestmap, uint256 timestamp);
+error TimestampExpiredError(uint256 blockTimestamp, uint256 expiresAt);
+error TxFailedError();
+```
+> 2. event
+> - `Queue`: 트랜잭션이 큐에 등록될 때 발생한다.
+> - `Execute`: 트랜잭션이 성공적으로 실행될 때 발생한다.
+> - `Cancel`: 트랜잭션이 취소될 때 발생한다.
+```solidity
+event Queue(
+        bytes32 indexed txId,
+        address indexed target,
+        uint256 value,
+        string func,
+        bytes data,
+        uint256 timestamp
+    );
+    event Execute(
+        bytes32 indexed txId,
+        address indexed target,
+        uint256 value,
+        string func,
+        bytes data,
+        uint256 timestamp
+    );
+event Cancel(bytes32 indexed txId);
+```
+3. 상수/변수
+> - `MIN_DELAY`: 최소 지연 시간
+> - `MAX_DELAY`: 최대 지연 시간
+> - `GRACE_PERIOD`: 거래가 만료되기 전까지의 추가 시간
+> - `owner`: 컨트랙트 소유자의 주소
+> - `queued`: 트랜잭션 ID(txId)가 queue에 등록되었는지 여부를 저장하는 mapping
+
+```solidity
+uint256 public constant MIN_DELAY = 10; // seconds
+uint256 public constant MAX_DELAY = 1000; // seconds
+uint256 public constant GRACE_PERIOD = 1000; // seconds
+
+address public owner;
+
+// tx id => queued
+mapping(bytes32 => bool) public queued;
+```
+
+4. 함수
+> - `constructor`: 컨트랙트를 배포할 때 호출되며, 호출자를 소유자로 설정한다.
+> - `onlyOwner`: 이 modifier를 사용하는 함수는 오직 소유자만 호출할 수 있다. 소유자가 아니면 `NotOwnerError`를 발생시킨다.
+> - `receive`: Ether를 받을 때 사용한다.
+> - `getTxId`: 주어진 매개변수에 따라 트랜잭션 ID(txId)를 생성한다. `txId`는 `_target`(대상 주소), `_value`(전송할 ETH의 양), `_func`(함수 서명), `_data`(ABI 인코딩된 데이터), `_timestamp`(타임스탬프)을 해시하여 생성한다.
+> - `queue`
+>> - 트랜잭션을 queue에 등록한다.
+>> - 트랜잭션 ID를 생성하고 이미 queue에 있으면 `AlreadyQueuedError`오류 발생.
+>> - `_timestamp`가 현재 시간에서 최소 지연 시간(`MIN_DELAY`)와 최대 지연 시간(`MAX_DELAY`) 범위 내에 있지 않으면 `TimestampNotInRangeError`오류 발생.
+>> - 트랜잭션을 queue에 등록하고 `Queue` 이벤트를 발생시킨다.
+> - `execute`
+>> - queue에 등록된 트랜잭션를 실행한다.
+>> - 트랜잭션 ID를 확인하고 queue에 있는지 확인하고 없으면 `NotQueuedError`오류 발생.
+>> - 현재 시간이 `_timestamp` 이전이면 `TimestampNotPassedError`오류 발생.
+>> - 현재 시간이 `_timestamp` + `GRACE_PERIOD` 이후이면 `TimestampExpiredError`오류 발생.
+>> - 트랜잭션을 실행하고 성공 여부를 확인한다. `Execute` 이벤트를 발생시킨다.
+> - `cancel`: queue에 등록된 트랜잭션을 취소한다. 트랜잭션 ID를 확인하고 queue에 있는지 확인한다. queue에서 트랜잭션을 제거하고 `Cancel` 이벤트를 발생시킨다.
+```solidity
+constructor() {
+    owner = msg.sender;
+}
+
+modifier onlyOwner() {
+        if (msg.sender != owner) {
+            revert NotOwnerError();
+        }
+        _;
+}
+
+receive() external payable {}
+
+function getTxId(
+        address _target,
+        uint256 _value,
+        string calldata _func,
+        bytes calldata _data,
+        uint256 _timestamp
+) public pure returns (bytes32) {
+    return keccak256(abi.encode(_target, _value, _func, _data, _timestamp));
+}
+function queue(
+        address _target,
+        uint256 _value,
+        string calldata _func,
+        bytes calldata _data,
+        uint256 _timestamp
+) external onlyOwner returns (bytes32 txId) {
+  txId = getTxId(_target, _value, _func, _data, _timestamp);
+  if (queued[txId]) {
+      revert AlreadyQueuedError(txId);
+  }
+
+  if (
+      _timestamp < block.timestamp + MIN_DELAY
+      || _timestamp > block.timestamp + MAX_DELAY
+  ) {
+      revert TimestampNotInRangeError(block.timestamp, _timestamp);
+  }
+
+  queued[txId] = true;
+
+  emit Queue(txId, _target, _value, _func, _data, _timestamp);
+  }
+
+function execute(
+        address _target,
+        uint256 _value,
+        string calldata _func,
+        bytes calldata _data,
+        uint256 _timestamp
+) external payable onlyOwner returns (bytes memory) {
+  bytes32 txId = getTxId(_target, _value, _func, _data, _timestamp);
+  if (!queued[txId]) {
+      revert NotQueuedError(txId);
+  }
+
+  if (block.timestamp < _timestamp) {
+      revert TimestampNotPassedError(block.timestamp, _timestamp);
+  }
+  if (block.timestamp > _timestamp + GRACE_PERIOD) {
+      revert TimestampExpiredError(
+          block.timestamp, _timestamp + GRACE_PERIOD
+      );
+  }
+
+  queued[txId] = false;
+
+  bytes memory data;
+  if (bytes(_func).length > 0) {
+      data = abi.encodePacked(bytes4(keccak256(bytes(_func))), _data);
+  } else {
+      data = _data;
+  }
+
+  (bool ok, bytes memory res) = _target.call{value: _value}(data);
+  if (!ok) {
+      revert TxFailedError();
+  }
+
+  emit Execute(txId, _target, _value, _func, _data, _timestamp);
+
+  return res;
+}
+
+function cancel(bytes32 _txId) external onlyOwner {
+    if (!queued[_txId]) {
+        revert NotQueuedError(_txId);
+    }
+
+    queued[_txId] = false;
+
+    emit Cancel(_txId);
+}
+```
+
+전체 코드
+-------
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract TimeLock {
+    error NotOwnerError();
+    error AlreadyQueuedError(bytes32 txId);
+    error TimestampNotInRangeError(uint256 blockTimestamp, uint256 timestamp);
+    error NotQueuedError(bytes32 txId);
+    error TimestampNotPassedError(uint256 blockTimestmap, uint256 timestamp);
+    error TimestampExpiredError(uint256 blockTimestamp, uint256 expiresAt);
+    error TxFailedError();
+
+    event Queue(
+        bytes32 indexed txId,
+        address indexed target,
+        uint256 value,
+        string func,
+        bytes data,
+        uint256 timestamp
+    );
+    event Execute(
+        bytes32 indexed txId,
+        address indexed target,
+        uint256 value,
+        string func,
+        bytes data,
+        uint256 timestamp
+    );
+    event Cancel(bytes32 indexed txId);
+
+    uint256 public constant MIN_DELAY = 10; // seconds
+    uint256 public constant MAX_DELAY = 1000; // seconds
+    uint256 public constant GRACE_PERIOD = 1000; // seconds
+
+    address public owner;
+    // tx id => queued
+    mapping(bytes32 => bool) public queued;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) {
+            revert NotOwnerError();
+        }
+        _;
+    }
+
+    receive() external payable {}
+
+    function getTxId(
+        address _target,
+        uint256 _value,
+        string calldata _func,
+        bytes calldata _data,
+        uint256 _timestamp
+    ) public pure returns (bytes32) {
+        return keccak256(abi.encode(_target, _value, _func, _data, _timestamp));
+    }
+
+    /**
+     * @param _target 호출하려는 contract or account 주소
+     * @param _value 보내려는 ETH의 양
+     * @param _func Function signature(함수 서명), 예를 들어, "foo(address,uint256)"
+     * @param _data ABI 인코딩된 데이터.
+     * @param _timestamp 트랜잭션이 실행되고 난 후의 timestamp.
+     */
+    function queue(
+        address _target,
+        uint256 _value,
+        string calldata _func,
+        bytes calldata _data,
+        uint256 _timestamp
+    ) external onlyOwner returns (bytes32 txId) {
+        txId = getTxId(_target, _value, _func, _data, _timestamp);
+        if (queued[txId]) {
+            revert AlreadyQueuedError(txId);
+        }
+        // ---|------------|---------------|-------
+        //  block    block + min     block + max
+        if (
+            _timestamp < block.timestamp + MIN_DELAY
+                || _timestamp > block.timestamp + MAX_DELAY
+        ) {
+            revert TimestampNotInRangeError(block.timestamp, _timestamp);
+        }
+
+        queued[txId] = true;
+
+        emit Queue(txId, _target, _value, _func, _data, _timestamp);
+    }
+
+    function execute(
+        address _target,
+        uint256 _value,
+        string calldata _func,
+        bytes calldata _data,
+        uint256 _timestamp
+    ) external payable onlyOwner returns (bytes memory) {
+        bytes32 txId = getTxId(_target, _value, _func, _data, _timestamp);
+        if (!queued[txId]) {
+            revert NotQueuedError(txId);
+        }
+        // ----|-------------------|-------
+        //  timestamp    timestamp + grace period
+        if (block.timestamp < _timestamp) {
+            revert TimestampNotPassedError(block.timestamp, _timestamp);
+        }
+        if (block.timestamp > _timestamp + GRACE_PERIOD) {
+            revert TimestampExpiredError(
+                block.timestamp, _timestamp + GRACE_PERIOD
+            );
+        }
+
+        queued[txId] = false;
+
+        // 데이터 준비
+        bytes memory data;
+        if (bytes(_func).length > 0) {
+            // data = func selector + _data
+            data = abi.encodePacked(bytes4(keccak256(bytes(_func))), _data);
+        } else {
+            // 데이터를 가진 fallback 호출
+            data = _data;
+        }
+
+        // target 호출
+        (bool ok, bytes memory res) = _target.call{value: _value}(data);
+        if (!ok) {
+            revert TxFailedError();
+        }
+
+        emit Execute(txId, _target, _value, _func, _data, _timestamp);
+
+        return res;
+    }
+
+    function cancel(bytes32 _txId) external onlyOwner {
+        if (!queued[_txId]) {
+            revert NotQueuedError(_txId);
+        }
+
+        queued[_txId] = false;
+
+        emit Cancel(_txId);
+    }
+}
+
+```
+
+
+#### Open in [REMIX](https://remix.ethereum.org/)
+
+### 실행
+
+1. 아래와 같은 폴더구조를 만들어야 한다.
+<img src="/images/Timelock/4.png" width="40%" height="70%">
+
+2. 컨트랙트 배포
+위의 예제 코드를 복사해서 붙여넣고 추가로 아래의 컨트랙트를 복사해서 붙여넣어 준다.
+```solidity
+contract TestTimeLock{
+    address public timeLock;
+    constructor(address _timeLock){
+        timeLock = _timeLock;
+    }
+    function test() view external {
+        require(msg.sender == timeLock, "not timelock");
+    }
+
+    function getTimestamp() external view returns (uint){
+        return block.timestamp +100;
+    }
+}
+```
+TimeLock을 배포한 후 TimeLock의 컨트랙트 주소를 복사하여 TestTimeLock의 address에 붙여넣고 배포한다.
+<img src="/images/Timelock/5.png" width="40%" height="70%">
+<img src="/images/Timelock/6.png" width="40%" height="70%">
+
+> 1. TimeLock의 queue에서 `_target` 필드에 TestTimeLock의 address를 붙여넣는다.
+> 2. _value에는 0, _func에는 "test()", data에는 0x00을 넣어준다.
+> 3. _timestamp에는 TestTimeLock의 getTimestamp를 호출하여 얻은 값을 넣고 transact해준다.
+<img src="/images/Timelock/7.png" width="40%" height="70%">
+> 4. TestTimeLock에서 getTimestamp에서 타임스탬프의 100초를 더한 값을 반환하기 때문에 queue를 transact한 후 100초가 지나기 전에 execute를 하면 다음과 같이 오류가 발생한다.
+<img src="/images/Timelock/10.png" width="40%" height="70%">
+<img src="/images/Timelock/8.png" width="80%" height="70%">
+> 5. 100초를 기다린 후 execute를 다시 호출하면 아래와 같이 성공적으로 호출된다.
+<img src="/images/Timelock/9.png" width="80%" height="70%">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
