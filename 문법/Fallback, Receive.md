@@ -1,0 +1,226 @@
+Fallback / Recieve
+=========
+
+목표
+-------
+- Fallback과 Receive의 개념과 차이를 이해한다.
+- Fallback과 Receive가 동작하는 방식을 배운다.
+- 
+
+
+개념
+-----
+solidity 0.6.0 버전 이전에는 fallback함수만 존재하였는데 0.6.0버전 이후에는 fallback함수가 fallback과 receive함수로 나뉘어졌다.<br>
+
+fallback 함수는 다음과 같은 특정 조건에서 호출되는 특수한 함수이다.
+1. 외부에서 컨트랙트로 함수를 호출했는데 해당 함수가 존재하지 않으면 fallback함수가 실행된다.
+2. Ether를 받을 때, receive함수가 없거나 msg.data가 포함되어 있으면 fallback함수가 실행된다.
+
+fallback 함수는 transfer나 send에 의해 호출될 때 최대 2300가스의 제한을 갖는다.<br>
+
+receive함수가 fallback함수와 다른 점은 msg.data도 없고, 단순히 Ether를 받을 때 사용된다는 점이다.
+
+
+예제 코드
+-------
+
+### 예제1
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract Fallback {
+    event Log(string func, uint256 gas);
+
+    // Fallback 함수는 external로 선언되어야 한다.
+    fallback() external payable {
+        // send / transfer (이 fallback함수에 2300의 가스를 전달한다.)
+        // call (모든 가스를 전달한다.)
+        emit Log("fallback", gasleft());
+    }
+
+    // Receive 는 msg.data가 비었을 때 fallback 대신에 호출된다.
+    receive() external payable {
+        emit Log("receive", gasleft());
+    }
+
+    // 이 contract의 balance를 확인시켜주는 함수이다.
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+}
+
+contract SendToFallback {
+    function transferToFallback(address payable _to) public payable {
+        _to.transfer(msg.value);
+    }
+
+    function callFallback(address payable _to) public payable {
+        (bool sent,) = _to.call{value: msg.value}("");
+        require(sent, "Failed to send Ether");
+    }
+}
+```
+
+### Fallback Contract
+
+1. Log
+   Log 이벤트는 fallback 또는 receive 함수가 호출될 때 남은 가스를 기록하는데 사용된다. <br>
+   `event Log(string func, uint256 gas);`
+   
+2. fallback
+   - Ether를 받을 때, 존재하지 않는 함수가 호출되거나 `msg.data`가 포함된 경우 실행된다.
+   - 외부에서 Ehter를 send 나 transfer에 의해서 이 컨트랙트로 전달 받았다면 fallback함수로 2300의 가스가 제공된다.
+   이는 제한적이고 단순한 작업만 수행할 수 있다.
+   - 반면에 call에 의해서 전달 받았다면 모든 가스를 전달받는다.
+   - gasleft()를 이용해 남은 가스를 로그로 기록한다.
+  ```solidity
+  fallback() external payable {
+      emit Log("fallback", gasleft());
+  }
+  ```
+   
+3. receive
+   - Ether를 받을 때, `msg.data`가 비어 있을 때 호출된다.
+   - gasleft()를 이용해 남은 가스를 로그로 기록한다.
+  ```solidity
+  receive() external payable {
+    emit Log("receive", gasleft());
+  }
+  ```
+
+4. getBalance
+   - 컨트랙트의 잔액을 반환하는 함수이다.
+   ```solidity
+   function getBalance() public view returns (uint256) {
+      return address(this).balance;
+    }
+   ```
+
+### SendToFallback Contract
+이 컨트랙트는 Fallback contract로 Ether를 보내는 컨트랙트이다.
+
+1. transferToFallback
+   - `_to` 주소로 `transfer`를 사용하여 Ether를 전송한다.
+   - `transfer`는 2300gas 제한을 두고 전송되며, `fallback` 함수가 호출된다.
+   ```solidity
+   function transferToFallback(address payable _to) public payable {
+       _to.transfer(msg.value);
+   }
+   ```
+   
+2. callFallback
+   - `_to` 주소로 `call`을 사용하여 Ether를 전송한다.
+   - `call`은 모든 가스를 전송하며, 성공여부를 반환한다.
+   - `require`를 사용하여 Ether 전송을 실패하면 트랜잭션을 되돌린다.
+   ```solidity
+   function callFallback(address payable _to) public payable {
+       (bool sent,) = _to.call{value: msg.value}("");
+       require(sent, "Failed to send Ether");
+   }
+   ```
+<br>
+
+### 예제2
+Fallback은 선택적으로 입력과 출력을 byte데이터로 처리할 수 있다.
+
+```solidity
+pragma solidity ^0.8.24;
+
+// TestFallbackInputOutput -> FallbackInputOutput -> Counter
+contract FallbackInputOutput {
+    address immutable target;
+
+    constructor(address _target) {
+        target = _target;
+    }
+
+    fallback(bytes calldata data) external payable returns (bytes memory) {
+        (bool ok, bytes memory res) = target.call{value: msg.value}(data);
+        require(ok, "call failed");
+        return res;
+    }
+}
+
+contract Counter {
+    uint256 public count;
+
+    function get() external view returns (uint256) {
+        return count;
+    }
+
+    function inc() external returns (uint256) {
+        count += 1;
+        return count;
+    }
+}
+
+contract TestFallbackInputOutput {
+    event Log(bytes res);
+
+    function test(address _fallback, bytes calldata data) external {
+        (bool ok, bytes memory res) = _fallback.call(data);
+        require(ok, "call failed");
+        emit Log(res);
+    }
+
+    function getTestData() external pure returns (bytes memory, bytes memory) {
+        return
+            (abi.encodeCall(Counter.get, ()), abi.encodeCall(Counter.inc, ()));
+    }
+}
+```
+
+### FallbackInputOutput Contract
+- `target` : 이 contract가 호출할 contract의 주소이다.
+- `fallback` 함수: 외부에서 호출될 때, 전달된 데이터를 `target` contract로 전달하며, 이더를 함께 보낼 수 있다. 성공적으로 호출했다면 결과를 반환한다.
+
+### Counter Contract
+- `count` : counter의 현재 값을 저장하는 변수이다.
+- `get` 함수 : `count`의 현재 값을 반환한다.
+- `inc` 함수 : `count`를 1 증가시키고, 증가된 값을 반환한다.
+
+### TestFallbackInputOutput Contract
+- `Log` 이벤트 : 호출 결과를 기록한다.
+- `test` 함수 : `_fallback` 주소로 데이터를 전달하여 호출한다. 호출 결과를 확인하고, 성공적이면 반환된 데이터를 기록한다.
+- `getTestData` 함수 : `Counter` contract의 `get` 과 `inc` 함수를 호출할 때 필요한 데이터를 인코딩하여 반환한다.
+
+
+
+Remix에서 실습
+--------
+1. Remix에서 새로운 solidity 파일 생성해서 예제 코드를 복사 붙여넣기 한다.
+2. 예제 코드를 compile 후 deploy한다.
+3. 아래 버튼들이 제대로 동작하는지 확인한다.
+
+### 예제1
+1. Fallback과 SendToFallback contract를 각각 배포하여 준다.
+2. Fallback contract의 주소(아래 그림 상의 0XD91...391138에 해당하는 부분)를 복사해서 각 함수의 address 필드에 붙여넣는다.
+<img src="/images/Fallback/1.png" width="40%" height="70%">
+3. Ether를 전송하기 위해 Value를 1Eth로 설정한 후 각 함수를 transact 한다.
+<img src="/images/Fallback/2.png" width="40%" height="70%">
+4. transferToFallback으로 전송한 경우
+<img src="/images/Fallback/3.png" width="80%" height="70%">
+5. callFallback으로 전송한 경우
+<img src="/images/Fallback/4.png" width="80%" height="70%">
+결과를 확인해 보면 Log 이벤트가 발생하고 각각 전달된 gas의 양이 다르다는 것을 확인할 수 있다. 또한 해당 컨트랙트의 ehter는 2Ether로 증가하였다.
+<img src="/images/Fallback/5.png" width="40%" height="70%">
+
+### 예제2
+1. Counter를 먼저 배포한다.
+2. Counter contract의 주소를 복사한다.
+3. FallbackInputOutput를 배포할 때 target 파라미터로 Counter contract의 주소를 붙여넣고 배포한다.
+4. TestFallbackInputOutput을 배포한다.
+5. TestFallbackInputOutput contract의 getTestData 함수를 호출하여 두 개의 데이터를 얻는다.
+<img src="/images/Fallback/6.png" width="40%" height="70%">
+6. test함수의 _fallback필드에 FallbackInputOutput contract의 주소를, data필드에 getTestData에서 얻은 1에 해당하는 byte를 넣고 transact한다.
+<img src="/images/Fallback/7.png" width="40%" height="70%">
+7. Counter contract의 count의 변수 or get함수를 통해 값이 증가했는지 확인한다.
+<img src="/images/Fallback/8.png" width="40%" height="70%">
+
+
+
+
+
+
