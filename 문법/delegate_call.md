@@ -1,4 +1,4 @@
-# If/Else
+# delegate call
 
 ## 목표
 - Solidity의 delegate call에 대해서 배운다.
@@ -92,16 +92,22 @@ contract A {
 ```
 delegatecall을 통해 컨트랙트 B의 setVars함수를 호출한다.  
 **주의점!!** storage의 형식이 컨트랙트 A와 B가 동일해야 한다.  
-ex)   uint256 public num;  
-      address public sender;  
-      uint256 public value;  
+
+아래와 같이 A 와 B가 동일한 것을 확인할 수 있다.  
+uint256 public num;  
+address public sender;  
+uint256 public value;  
 
 ## Remix에서 실습
 1. Remix에서 새로운 solidity 파일 생성해서 예제 코드를 복사 붙여넣기 한.
 2. 예제 코드를 compile 후 deploy한다.
 3. 아래 버튼들이 제대로 동작하는지 확인한다.
 
+- 컨트랙트 B와 A를 배포한다.
   
-<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/if-else/If%3Aelse%20button.png" width="250px" height="300px" title="if/else" alt="if/else"></img><br/>
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/aca082b8-2dfe-442b-8d8d-2c8b85d0be55)
 
-각각 조건에 따라 1, 2 를 반환한다.
+- 컨트랙트 A에 B의 주소와, 숫자 3, 5wei를 전송하고 transaction을 날렸을 때, 컨트랙트 B에 기록되어야 할 정보가 A에 기록된 것을 확인할 수 있다.
+ 
+![image](https://github.com/mmingyeomm/nestJS/assets/87323564/70629846-d781-41fe-b091-8f8988bf7c84)
+
