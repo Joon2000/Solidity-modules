@@ -570,22 +570,22 @@ contract MyNFT is ERC721 {
 ------
 1. MyNFT.sol 파일을 생성하고 전체 코드를 붙여넣고 컴파일을 한다.
 2. 컨트랙트에서 MyNFT.sol을 선택하고 deploy 한다. <br>
-   <img src="/images/NFT/1.png" width="50%" height="100%">
+   <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/NFT/1.png" width="50%" height="100%">
 3. NFT를 mint하기 위해서 mint 함수의 `to` 필드에 ACCOUNT(0x5B3...)를 복사하여 붙여넣고, `id`필드에 1을 넣는다.<br>
-   <img src="/images/NFT/2.png" width="50%" height="100%">
+   <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/NFT/2.png" width="50%" height="100%">
 4. balanceOf의 `owner`필드에 ACCOUNT(0x5B3...)을 넣어보면 토큰 소유자의 토큰 보유 개수가 출력된다.<br>
-   <img src="/images/NFT/3.png" width="50%" height="100%">
+   <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/NFT/3.png" width="50%" height="100%">
 5. ownerOf의 `id`필드에 1을 넣어보면 소유자의 주소가 출력된다. 왜냐하면 토큰 id 1을 (0x5B3...)에게 mint하여 주었기 때문이다.<br>
-   <img src="/images/NFT/4.png" width="50%" height="100%">
+   <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/NFT/4.png" width="50%" height="100%">
 6. 이제 이 토큰을 다른 주소로 전송하기 위해서 ACCOUNT필드에서 다른 ACCOUNT(0xAb8...)을 선택하여 복사해준다.<br>
-   <img src="/images/NFT/5.png" width="50%" height="100%">
+   <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/NFT/5.png" width="50%" height="100%">
 7. 복사한 주소를 transferFrom의 `to`필드에 붙여넣고, `from`필드에는 기존의 ACCOUNT(0x5B3...)을 넣어주고, `id`필드에는 1을 넣어준다.
    ACCOUNT 필드에서 기존의 주소(0x5B3...)을 선택해주고 transferFrom함수를 transcat해준다.<br>
-   <img src="/images/NFT/6.png" width="50%" height="100%">
+   <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/NFT/6.png" width="50%" height="100%">
 8. ownerOf의 `id`필드에서 1을 넣고 transact를 하면 토큰 소유자가 변경된 것을 확인할 수 있다.<br>
-   <img src="/images/NFT/7.png" width="50%" height="100%">
+   <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/NFT/7.png" width="50%" height="100%">
 9. ACCOUNT필드에서 현재 토큰 소유자(0xAb8...)의 주소를 선택해주고 burn의 id필드에 1을 넣고 transact를 한다.<br>
-   <img src="/images/NFT/8.png" width="50%" height="100%">
+   <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/NFT/8.png" width="50%" height="100%">
 10. ownerOf의 `id`필드에 1을 넣고 transact를 하면 "token doesn't exist"라는 오류메시지가 뜬다. 이는 토큰이 성공적으로 burn되었다는 것을 의미한다.<br>
-    <img src="/images/NFT/9.png" width="100%" height="100%">
+    <img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/NFT/9.png" width="100%" height="100%">
     
