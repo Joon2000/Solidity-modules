@@ -23,12 +23,12 @@ Remix세팅
 
 ### 2. Workspace 생성
 > 1. 왼쪽 상단의 workspaces 클릭 후 Create 클릭
-<img src="/images/Timelock/1.png" width="40%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/1.png" width="40%" height="70%">
 > 2. choose a template을 Blank 선택 Workspace name에 workspace 이름 적기
-<img src="/images/Timelock/2.png" width="40%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/2.png" width="40%" height="70%">
 > 3. 모든 폴더와 파일 삭제
 > 4. contracts 폴더와 solidity 파일 생성
-<img src="/images/Timelock/3.png" width="40%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/3.png" width="40%" height="70%">
 
 미션 진행
 -------
@@ -375,7 +375,7 @@ contract TimeLock {
 ### 실행
 
 1. 아래와 같은 폴더구조를 만들어야 한다.
-<img src="/images/Timelock/4.png" width="40%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/4.png" width="40%" height="70%">
 
 2. 컨트랙트 배포
 위의 예제 코드를 복사해서 붙여넣고 추가로 아래의 컨트랙트를 복사해서 붙여넣어 준다.
@@ -395,18 +395,18 @@ contract TestTimeLock{
 }
 ```
 TimeLock을 배포한 후 TimeLock의 컨트랙트 주소를 복사하여 TestTimeLock의 address에 붙여넣고 배포한다.
-<img src="/images/Timelock/5.png" width="40%" height="70%">
-<img src="/images/Timelock/6.png" width="40%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/5.png" width="40%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/6.png" width="40%" height="70%">
 
 > 1. TimeLock의 queue에서 `_target` 필드에 TestTimeLock의 address를 붙여넣는다.
 > 2. _value에는 0, _func에는 "test()", data에는 0x00을 넣어준다.
 > 3. _timestamp에는 TestTimeLock의 getTimestamp를 호출하여 얻은 값을 넣고 transact해준다.
-<img src="/images/Timelock/7.png" width="40%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/7.png" width="40%" height="70%">
 > 4. TestTimeLock에서 getTimestamp에서 타임스탬프의 100초를 더한 값을 반환하기 때문에 queue를 transact한 후 100초가 지나기 전에 execute를 하면 다음과 같이 오류가 발생한다.
-<img src="/images/Timelock/10.png" width="40%" height="70%">
-<img src="/images/Timelock/8.png" width="80%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/10.png" width="40%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/8.png" width="80%" height="70%">
 > 5. 100초를 기다린 후 execute를 다시 호출하면 아래와 같이 성공적으로 호출된다.
-<img src="/images/Timelock/9.png" width="80%" height="70%">
+<img src="https://github.com/Joon2000/Solidity-modules/blob/main/images/Timelock/9.png" width="80%" height="70%">
 
 
 
