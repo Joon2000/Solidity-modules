@@ -1,5 +1,4 @@
-~~Remix 실습에 각 부분에 대한 부가 설명 추가하기~~  
-~~어려움을 느낄 수 있는 함수에 대해서 설명 추가하기 ex)생성자~~
+~~Remix 실습에 각 부분에 대한 부가 설명 추가하기 (Crowd Funding Smart Contract 설명 부분)~~  
 
 # Crowd Funding ERC20 Token
 
@@ -242,17 +241,17 @@ contract ERC20 {
 
 4. 배포된 계약을 통해 다음과 같은 기능들을 테스트한다:
    - 새로운 캠페인 생성 (`launch`) <br>
-   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cflaunch.png" width="200px" height="500px" title="launch" alt="launch"> <br>
+   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cflaunch.png" width="600px" height="1500px" title="launch" alt="launch"> <br>
    - ERC20 Token Smart Contract에서 `approve` function을 호출하여 `CrowdFund` Smart Contract가 Token을 전송할 수 있도록 승인 <br>
-   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfapprove.png" width="200px" height="500px" title="approve" alt="approve"> <br>
+   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfapprove.png" width="600px" height="1500px" title="approve" alt="approve"> <br>
    - 캠페인에 기부 (`pledge`) <br>
-   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfpledge.png" width="200px" height="500px" title="pledge" alt="pledge"> <br>
+   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfpledge.png" width="600px" height="1500px" title="pledge" alt="pledge"> <br>
    - 기부 취소 (`unpledge`) <br>
-   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfunpledge.png" width="200px" height="500px" title="unpledge" alt="unpledge"> <br>   
+   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfunpledge.png" width="600px" height="1500px" title="unpledge" alt="unpledge"> <br>   
    - 목표 금액 달성 시 자금 인출 (`claim`) <br>
-   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfclaim.png" width="200px" height="500px" title="claim" alt="claim"> <br>   
+   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfclaim.png" width="600px" height="1500px" title="claim" alt="claim"> <br>   
    - 목표 금액 미달성 시 기부금 환불 (`refund`) <br>
-   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfrefund.png" width="200px" height="500px" title="refund" alt="refund"> <br>   
+   <img src="https://github.com/YoonHo-Chang/ludium-module/blob/323ade952d2effc58e49b36412ae10d77573e499/images/cfrefund.png" width="600px" height="1500px" title="refund" alt="refund"> <br>   
 
 
 위 단계를 통해 Crowd Funding 스마트 컨트랙트가 제대로 동작하는지 확인한다.
